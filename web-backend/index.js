@@ -11,6 +11,7 @@ db.query('SELECT 1')
     .catch(err => console.error('DB TURUUUU', err));
 
 const authRoutes = require('./routes/authRoutes');
+const weatherRoutes = require('./routes/weatherRoutes'); 
 
 // Middleware
 app.use(cors());
@@ -18,6 +19,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/weather', weatherRoutes); // Add weather route
 
 // Rute Tes
 app.get('/', (req, res) => {
