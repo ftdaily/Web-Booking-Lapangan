@@ -24,21 +24,14 @@ const Field = () => {
         {/* FILTER SECTION */}
         <section className="flex flex-col gap-4 items-center mb-6 ">
           <p className="text-sm">
-            Menampilkan <span className="font-bold">6 Venue tersedia</span>
+            Menampilkan <span className="font-bold">6 Lapangan tersedia</span>
           </p>
 
           <div className="flex flex-wrap items-center gap-4">
-            {/* pill pilih lapangan */}
-            <div className="flex items-center gap-2 bg-gray-400/60 rounded-full px-4 py-2 min-w-[200px]">
-              <span className="text-xs">🔍</span>
-              <span className="text-sm text-gray-700">Pilih lapangan</span>
-            </div>
-
-            {/* pill jam */}
-            <div className="flex items-center gap-2 bg-gray-400/60 rounded-full px-4 py-2 min-w-[200px]">
-              <span className="text-xs">🔍</span>
-              <span className="text-sm text-gray-700">Jam</span>
-            </div>
+            <form action="" className="gap-3 flex">
+              <input type="text" placeholder="Pilih lapangan" className="bg-stone-300 p-4 rounded-full"/>
+              <input type="text" placeholder="Jam" className="bg-stone-300 p-4 rounded-full"/>
+            </form>
 
             {/* icon filter */}
             <button className="w-12 h-10 flex items-center justify-center bg-white rounded-2xl shadow-sm">
