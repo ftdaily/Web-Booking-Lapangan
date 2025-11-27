@@ -5,6 +5,7 @@ import {Front} from './Page/Front.jsx';
 import Navbar from "./components/Navbar";
 import Login from './Page/Login.jsx';
 import Register from './Page/Register.jsx';
+import Field from './Page/Field.jsx';
 // import Weather from './Page/Weather.jsx';
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
           <Route path='/' element={<Front />} />
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
+          <Route path='/field' element={<Field />} />
           {/* <Route path="/weather" element={<Weather />} /> */}
         </Routes>
       </Router>
