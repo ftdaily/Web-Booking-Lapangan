@@ -1,13 +1,17 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const UserLayout = ({ children }) => {
   const location = useLocation();
 
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
   const navigation = [
-    { name: "Beranda", href: "/", icon: "🏠" },
-    { name: "Lapangan", href: "/lapangan", icon: "🏸" },
-    { name: "Booking Saya", href: "/booking", icon: "📅" },
+    { name: "Beranda", href: "/", icon: "🏠", public: true },
+    { name: "Lapangan", href: "/lapangan", icon: "🏸", public: true },
+    { name: "Booking Saya", href: "/booking", icon: "📅", authOnly: true },
     // { name: "Riwayat", href: "/riwayat", icon: "📋" },
   ];
 
@@ -47,7 +51,7 @@ const UserLayout = ({ children }) => {
 
             {/* Navigation */}
             <nav className="hidden md:flex space-x-8">
-              {navigation.map((item) => (
+              {navigation.filter(i => (i.public || (i.authOnly && user))).map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
@@ -69,56 +73,73 @@ const UserLayout = ({ children }) => {
                 Notification
               </button>
               <div className="relative group">
-                <button className="flex items-center p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md">
-                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                    U
+                {!user ? (
+                  <div className="flex items-center gap-3">
+                    <Link to="/login" className="text-sm text-gray-700 hover:text-gray-900">Masuk</Link>
+                    <Link to="/register" className="text-sm text-white bg-red-600 px-3 py-1 rounded hover:bg-red-700">Daftar</Link>
                   </div>
-                  <span className="ml-2 text-sm font-medium">User</span>
-                  <svg
-                    className="ml-1 w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </button>
-
-                {/* Dropdown Menu */}
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 z-10">
-                  <div className="py-1">
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Profil Saya
-                    </Link>
-                    <Link
-                      to="/settings"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Pengaturan
-                    </Link>
-                    <hr className="border-gray-200 my-1" />
-                    <button className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                      Logout
+                ) : (
+                  <>
+                    <button className="flex items-center p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md">
+                      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                        {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                      </div>
+                      <span className="ml-2 text-sm font-medium">{user.name}</span>
+                      <svg
+                        className="ml-1 w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
                     </button>
-                  </div>
-                </div>
+
+                    {/* Dropdown Menu */}
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 z-10">
+                      <div className="py-1">
+                        <Link
+                          to="/profile"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Profil Saya
+                        </Link>
+                        <Link
+                          to="/settings"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Pengaturan
+                        </Link>
+                        {user?.role === 'admin' && (
+                          <Link
+                            to="/admin"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            Admin
+                          </Link>
+                        )}
+                        <hr className="border-gray-200 my-1" />
+                        <button onClick={async () => { await logout(); navigate('/'); }} className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                          Logout
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+            {/* Mobile Navigation */}
         <div className="md:hidden border-t border-gray-200">
           <div className="px-2 py-3 space-y-1">
-            {navigation.map((item) => (
+            {navigation.filter(i => (i.public || (i.authOnly && user))).map((item) => (
               <Link
                 key={item.name}
                 to={item.href}

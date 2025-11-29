@@ -1,35 +1,108 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import api from "../../utils/api";
+import { normalizeBookingList, formatCurrency, bookingCodeFromId, formatDate } from '../../utils/bookings';
+import { useToast } from '../../contexts/ToastContext';
 
 const Booking = () => {
-  const [bookings, setBookings] = useState([
-    {
-      id: 1,
-      courtName: "Lapangan Badminton A",
-      date: "2024-12-01",
-      time: "08:00 - 09:00",
-      status: "confirmed",
-      price: "Rp. 50,000",
-      bookingCode: "BK001",
-    },
-    {
-      id: 2,
-      courtName: "Lapangan Futsal Indoor",
-      date: "2024-11-30",
-      time: "19:00 - 20:00",
-      status: "pending",
-      price: "Rp. 120,000",
-      bookingCode: "BK002",
-    },
-    {
-      id: 3,
-      courtName: "Lapangan Badminton B",
-      date: "2024-11-25",
-      time: "15:00 - 16:00",
-      status: "completed",
-      price: "Rp. 45,000",
-      bookingCode: "BK003",
-    },
-  ]);
+  
+  const [bookings, setBookings] = useState([]);
+  const [fetchError, setFetchError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  useEffect(() => {
+    // Try to fetch bookings from backend and normalize them for the UI
+    const loadBookings = async () => {
+      try {
+        setLoading(true);
+        setFetchError(null);
+        const res = await api.get('/bookings');
+        const list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+        setBookings(normalizeBookingList(list));
+      } catch (err) {
+        console.warn('Failed to fetch bookings from backend', err);
+        setFetchError(err);
+        showToast('Gagal memuat booking. Tekan Retry untuk mencoba lagi', 'error');
+      }
+    };
+    loadBookings();
+  }, []);
+
+  const totalBookings = bookings.length;
+  const confirmedCount = bookings.filter((b) => b.status === 'confirmed').length;
+  const pendingCount = bookings.filter((b) => b.status === 'pending').length;
+  const totalRevenue = bookings.reduce((s, b) => s + (Number(b.amount) || 0), 0);
+  const activeCourts = new Set(bookings.map((b) => b.courtName)).size;
+  const todayDate = new Date().toISOString().slice(0, 10);
+  const todayBookings = bookings.filter((b) => b.date === todayDate).length;
+  const stats = { totalBookings, confirmedCount, pendingCount, totalRevenue, activeCourts, todayBookings };
+
+  const handleCancel = async (bookingId) => {
+    try {
+      await api.patch(`/bookings/${bookingId}`, { status: 'cancelled' });
+      setBookings((prev) => prev.map(b => b.id === bookingId ? { ...b, status: 'cancelled' } : b));
+    } catch (err) {
+      console.warn('Failed to cancel booking via backend', err);
+      // fallback to local state
+      setBookings((prev) => prev.map(b => b.id === bookingId ? { ...b, status: 'cancelled' } : b));
+    }
+  }
+
+  const handleEdit = (bookingId) => {
+    // simple inline edit via prompts: allow change start and end time date
+    const newDate = prompt('Tanggal baru (YYYY-MM-DD) - kosong untuk tidak mengubah');
+    const newStart = prompt('Waktu mulai baru (HH:MM) - kosong untuk tidak mengubah');
+    const newEnd = prompt('Waktu selesai baru (HH:MM) - kosong untuk tidak mengubah');
+    if (!newDate && !newStart && !newEnd) return;
+    const payload = {};
+    if (newDate) payload.booking_date = newDate;
+    if (newStart) payload.start_time = newStart;
+    if (newEnd) payload.end_time = newEnd;
+    const update = async () => {
+      try {
+        await api.patch(`/bookings/${bookingId}`, payload);
+        setBookings(prev => prev.map(b => {
+          if (b.id !== bookingId) return b;
+          const updated = { ...b };
+          if (payload.booking_date) updated.date = payload.booking_date;
+          if (payload.start_time || payload.end_time) updated.time = `${payload.start_time || (b.raw?.start_time || '')} - ${payload.end_time || (b.raw?.end_time || '')}`;
+          // keep raw updated fields too
+          updated.raw = { ...b.raw, ...payload };
+          return updated;
+        }));
+        alert('Booking berhasil diperbarui');
+      } catch (err) {
+        console.warn('Failed to edit booking via backend', err);
+        alert(err?.response?.data?.message || 'Gagal memperbarui booking');
+      }
+    };
+    update();
+  }
+
+  const handleViewDetail = (bookingId) => {
+    // navigate to booking detail page (if exists)
+    // navigate(`/user/booking/${bookingId}`)
+    alert(`Show detail for booking ${bookingId} - feature not implemented`);
+  }
 
   const getStatusBadge = (status) => {
     const statusConfig = {
@@ -66,17 +139,17 @@ const Booking = () => {
       case "pending":
         return (
           <div className="flex gap-2">
-            <button className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors">
+            <button onClick={() => handleCancel(bookingId)} className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors">
               Batalkan
             </button>
-            <button className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors">
+            <button onClick={() => handleEdit(bookingId)} className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors">
               Edit
             </button>
           </div>
         );
       case "confirmed":
         return (
-          <button className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition-colors">
+          <button onClick={() => handleViewDetail(bookingId)} className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition-colors">
             Lihat Detail
           </button>
         );
@@ -90,6 +163,8 @@ const Booking = () => {
         return null;
     }
   };
+
+  
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -125,7 +200,7 @@ const Booking = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm text-gray-600">Total Booking</p>
-                <p className="text-2xl font-bold text-gray-800">3</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.totalBookings}</p>
               </div>
             </div>
           </div>
@@ -149,7 +224,7 @@ const Booking = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm text-gray-600">Dikonfirmasi</p>
-                <p className="text-2xl font-bold text-gray-800">1</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.confirmedCount}</p>
               </div>
             </div>
           </div>
@@ -173,7 +248,7 @@ const Booking = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm text-gray-600">Menunggu</p>
-                <p className="text-2xl font-bold text-gray-800">1</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.pendingCount}</p>
               </div>
             </div>
           </div>
@@ -197,7 +272,7 @@ const Booking = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm text-gray-600">Total Biaya</p>
-                <p className="text-2xl font-bold text-gray-800">Rp. 215K</p>
+                <p className="text-2xl font-bold text-gray-800">{formatCurrency(stats.totalRevenue)}</p>
               </div>
             </div>
           </div>
@@ -246,6 +321,15 @@ const Booking = () => {
         </div>
 
         {/* Booking List */}
+        {fetchError && (
+          <div className="mb-6 text-center p-4 bg-red-50 rounded">
+            <div className="mb-2 text-red-700">Gagal memuat daftar booking.</div>
+            <div>
+              <button onClick={() => { setFetchError(null); (async () => {
+                try { const res = await api.get('/bookings'); const list = Array.isArray(res.data) ? res.data : (res.data?.data || []); setBookings(normalizeBookingList(list)); showToast('Berhasil memuat ulang', 'info'); } catch (err) { setFetchError(err); showToast('Gagal memuat booking lagi', 'error'); } })(); }} className="px-4 py-2 bg-blue-600 text-white rounded mr-2">Retry</button>
+            </div>
+          </div>
+        )}
         <div className="space-y-6">
           {bookings.map((booking) => (
             <div
@@ -257,7 +341,7 @@ const Booking = () => {
                   <div className="flex-1 mb-4 md:mb-0">
                     <div className="flex items-center gap-4 mb-2">
                       <h3 className="text-xl font-semibold text-gray-800">
-                        {booking.courtName}
+                        {booking.courtName || booking.court}
                       </h3>
                       {getStatusBadge(booking.status)}
                     </div>
@@ -277,7 +361,7 @@ const Booking = () => {
                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                           />
                         </svg>
-                        <span>{booking.date}</span>
+                        <span>{formatDate(booking.date)}</span>
                       </div>
                       <div className="flex items-center">
                         <svg
@@ -293,7 +377,7 @@ const Booking = () => {
                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                           />
                         </svg>
-                        <span>{booking.time}</span>
+                        <span>{booking.time || booking.time}</span>
                       </div>
                       <div className="flex items-center">
                         <svg
@@ -309,7 +393,7 @@ const Booking = () => {
                             d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
                           />
                         </svg>
-                        <span>Kode: {booking.bookingCode}</span>
+                        <span>Kode: {booking.bookingCode || bookingCodeFromId(booking.id)}</span>
                       </div>
                     </div>
                   </div>
@@ -317,7 +401,7 @@ const Booking = () => {
                   <div className="md:text-right">
                     <div className="mb-3">
                       <span className="text-2xl font-bold text-blue-600">
-                        {booking.price}
+                        {booking.price || formatCurrency(booking.amount)}
                       </span>
                     </div>
                     {getActionButton(booking.status, booking.id)}

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import api from "../../utils/api";
 
 const ManageCourts = () => {
   const [courts, setCourts] = useState([
@@ -60,17 +61,36 @@ const ManageCourts = () => {
     },
   ]);
 
-  const [showModal, setShowModal] = useState(false);
-  const [editingCourt, setEditingCourt] = useState(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    type: "",
-    location: "",
-    capacity: "",
-    pricePerHour: "",
-    facilities: [],
-    image: "",
-  });
+  // modal forms are handled globally by AdminLayout modal
+
+  useEffect(() => {
+    const loadRooms = async () => {
+      try {
+        const { data } = await api.get('/rooms');
+        const rows = Array.isArray(data) ? data : data.data || [];
+        setCourts(rows.map(r => ({
+          id: r.id,
+          name: r.name,
+          type: r.type || 'Badminton',
+          location: r.location || '',
+          capacity: r.capacity || 4,
+          status: r.is_active ? 'active' : 'inactive',
+          pricePerHour: r.price_per_hour || r.price || 50000,
+          facilities: r.facilities || [],
+          image: r.image || 'https://via.placeholder.com/400x300',
+        })));
+      } catch (err) {
+        console.warn('Failed to load rooms for admin', err);
+      }
+    };
+    loadRooms();
+    // Event binding for reload after room saved
+    const onRoomSaved = () => loadRooms();
+    window.addEventListener('roomSaved', onRoomSaved);
+    return () => {
+      window.removeEventListener('roomSaved', onRoomSaved);
+    };
+  }, []);
 
   const courtTypes = [
     "Badminton",
@@ -123,79 +143,48 @@ const ManageCourts = () => {
   };
 
   const handleAddCourt = () => {
-    setEditingCourt(null);
-    setFormData({
-      name: "",
-      type: "",
-      location: "",
-      capacity: "",
-      pricePerHour: "",
-      facilities: [],
-      image: "",
-    });
-    setShowModal(true);
+    window.dispatchEvent(new CustomEvent('openAddCourt'));
   };
 
   const handleEditCourt = (court) => {
-    setEditingCourt(court);
-    setFormData({
-      name: court.name,
-      type: court.type,
-      location: court.location,
-      capacity: court.capacity.toString(),
-      pricePerHour: court.pricePerHour.toString(),
-      facilities: court.facilities,
-      image: court.image,
-    });
-    setShowModal(true);
+    window.dispatchEvent(new CustomEvent('openEditCourt', { detail: { id: court.id } }));
   };
 
   const handleDeleteCourt = (courtId) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus lapangan ini?")) {
-      setCourts(courts.filter((court) => court.id !== courtId));
+    const confirmDelete = window.confirm("Apakah Anda yakin ingin menghapus lapangan ini?");
+    if (confirmDelete) {
+      const deleteCourt = async () => {
+        try {
+          await api.delete(`/rooms/${courtId}`);
+          setCourts(prev => prev.filter(c => c.id !== courtId));
+        } catch (err) {
+          console.warn('Failed to delete room', err);
+          setCourts(prev => prev.filter(c => c.id !== courtId));
+        }
+      };
+      deleteCourt();
     }
   };
 
   const handleStatusChange = (courtId, newStatus) => {
-    setCourts(
-      courts.map((court) =>
-        court.id === courtId ? { ...court, status: newStatus } : court
-      )
+    const updated = courts.map((court) =>
+      court.id === courtId ? { ...court, status: newStatus } : court
     );
-  };
-
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-
-    const courtData = {
-      ...formData,
-      capacity: parseInt(formData.capacity),
-      pricePerHour: parseInt(formData.pricePerHour),
-      status: "active",
-      totalBookings: 0,
-      rating: 0,
+    setCourts(updated);
+    const updateStatusBackend = async () => {
+      try {
+        const is_active = newStatus === 'active' ? 1 : 0;
+        await api.put(`/rooms/${courtId}`, { is_active });
+      } catch (err) {
+        console.warn('Failed to update status on backend', err);
+      }
     };
-
-    if (editingCourt) {
-      setCourts(
-        courts.map((court) =>
-          court.id === editingCourt.id ? { ...court, ...courtData } : court
-        )
-      );
-    } else {
-      setCourts([...courts, { ...courtData, id: Date.now() }]);
-    }
-
-    setShowModal(false);
+    updateStatusBackend();
   };
 
-  const handleFacilityChange = (facility) => {
-    const updatedFacilities = formData.facilities.includes(facility)
-      ? formData.facilities.filter((f) => f !== facility)
-      : [...formData.facilities, facility];
+  // Handled by global AdminLayout modal
 
-    setFormData({ ...formData, facilities: updatedFacilities });
-  };
+  // facility changes handled in AdminLayout modal
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -497,160 +486,7 @@ const ManageCourts = () => {
         </div>
       </div>
 
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                {editingCourt ? "Edit Lapangan" : "Tambah Lapangan"}
-              </h2>
-
-              <form onSubmit={handleFormSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nama Lapangan
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Tipe Olahraga
-                    </label>
-                    <select
-                      value={formData.type}
-                      onChange={(e) =>
-                        setFormData({ ...formData, type: e.target.value })
-                      }
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                    >
-                      <option value="">Pilih Tipe</option>
-                      {courtTypes.map((type) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Lokasi
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.location}
-                    onChange={(e) =>
-                      setFormData({ ...formData, location: e.target.value })
-                    }
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Kapasitas (orang)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.capacity}
-                      onChange={(e) =>
-                        setFormData({ ...formData, capacity: e.target.value })
-                      }
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Harga per Jam (Rp)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.pricePerHour}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          pricePerHour: e.target.value,
-                        })
-                      }
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    URL Gambar
-                  </label>
-                  <input
-                    type="url"
-                    value={formData.image}
-                    onChange={(e) =>
-                      setFormData({ ...formData, image: e.target.value })
-                    }
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="https://example.com/image.jpg"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Fasilitas
-                  </label>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    {availableFacilities.map((facility) => (
-                      <label key={facility} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={formData.facilities.includes(facility)}
-                          onChange={() => handleFacilityChange(facility)}
-                          className="mr-2"
-                        />
-                        <span className="text-sm text-gray-700">
-                          {facility}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex justify-end space-x-4 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    Batal
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    {editingCourt ? "Update" : "Tambah"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal now handled by AdminLayout's global modal */}
     </div>
   );
 };

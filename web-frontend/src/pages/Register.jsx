@@ -1,9 +1,12 @@
 ﻿import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import api from "../utils/api";
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Register() {
   const [formData, setFormData] = useState({
     fullName: "",
+    npm: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -13,6 +16,7 @@ export default function Register() {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { register: registerAction } = useAuth();
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -26,6 +30,10 @@ export default function Register() {
         ...prev,
         [name]: ''
       }));
+    }
+    // clear general errors when user edits
+    if (errors.general) {
+      setErrors(prev => ({ ...prev, general: '' }));
     }
   };
 
@@ -44,6 +52,10 @@ export default function Register() {
 
     if (!formData.phoneNumber) {
       newErrors.phoneNumber = "Nomor telepon harus diisi";
+    }
+
+    if (!formData.npm) {
+      newErrors.npm = "NPM harus diisi";
     }
 
     if (!formData.password) {
@@ -66,20 +78,37 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    console.debug('Register submit clicked', formData);
     if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
-
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log("Register data:", formData);
-      alert("Pendaftaran berhasil! Silakan login.");
-      navigate("/login");
-    } catch (error) {
-      setErrors({ general: "Terjadi kesalahan. Silakan coba lagi." });
+      const payload = {
+        name: formData.fullName,
+        npm: formData.npm,
+        email: formData.email,
+        phone: formData.phoneNumber,
+        password: formData.password,
+      };
+      const data = await registerAction(payload);
+      console.log('Registration result:', data);
+      // `register` may set httpOnly cookie for authentication in backend
+      alert(data?.message || 'Pendaftaran berhasil! Silakan login.');
+      navigate('/login');
+    } catch (err) {
+      console.error('Registration error:', err);
+      const serverMessage = err?.response?.data?.message;
+      const serverErrors = err?.response?.data?.errors;
+      if (serverErrors && typeof serverErrors === 'object') {
+        setErrors(prev => ({ ...prev, ...serverErrors }));
+      } else if (err?.response?.status === 409) {
+        // Duplicate entry
+        setErrors(prev => ({ ...prev, general: serverMessage || 'Email atau NPM sudah terdaftar.' }));
+      } else {
+        setErrors(prev => ({ ...prev, general: serverMessage || 'Terjadi kesalahan. Silakan coba lagi.' }));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -94,6 +123,11 @@ export default function Register() {
         </div>
 
         <div className="bg-white rounded-lg shadow-xl p-8">
+          {errors.general && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-600">{errors.general}</p>
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -109,6 +143,23 @@ export default function Register() {
               />
               {errors.fullName && (
                 <p className="mt-1 text-sm text-red-600">{errors.fullName}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                NPM
+              </label>
+              <input
+                type="text"
+                name="npm"
+                value={formData.npm}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Masukkan NPM"
+              />
+              {errors.npm && (
+                <p className="mt-1 text-sm text-red-600">{errors.npm}</p>
               )}
             </div>
 

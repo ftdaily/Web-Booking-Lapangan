@@ -1,55 +1,80 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import api from "../utils/api";
 import { Link } from "react-router-dom";
+import { useToast } from '../contexts/ToastContext';
+import { formatCurrency } from '../utils/bookings';
 
 const Field = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("");
   const [priceRange, setPriceRange] = useState("");
 
-  const venues = [
-    {
-      id: 1,
-      name: "Lapangan Badminton A",
-      type: "Badminton",
-      price: 50000,
-      priceDisplay: "Rp. 50,000 /jam",
-      image:
-        "https://images.tokopedia.net/blog-tokopedia-com/uploads/2021/01/Ukuran-Lapangan-Bulu-Tangkis.jpg",
-      location: "Lantai 2, Gedung Olahraga",
-      rating: 4.8,
-      facilities: ["AC", "Shower", "Parking"],
-      available: true,
-      capacity: 4,
-    },
-    {
-      id: 2,
-      name: "Lapangan Futsal Indoor",
-      type: "Futsal",
-      price: 120000,
-      priceDisplay: "Rp. 120,000 /jam",
-      image:
-        "https://images.tokopedia.net/blog-tokopedia-com/uploads/2021/01/Ukuran-Lapangan-Bulu-Tangkis.jpg",
-      location: "Lantai 1, Gedung Olahraga",
-      rating: 4.9,
-      facilities: ["AC", "Shower", "Parking", "Sound System"],
-      available: false,
-      capacity: 12,
-    },
-    {
-      id: 3,
-      name: "Lapangan Tennis A",
-      type: "Tennis",
-      price: 75000,
-      priceDisplay: "Rp. 75,000 /jam",
-      image:
-        "https://images.tokopedia.net/blog-tokopedia-com/uploads/2021/01/Ukuran-Lapangan-Bulu-Tangkis.jpg",
-      location: "Outdoor Area",
-      rating: 4.3,
-      facilities: ["Parking", "Storage"],
-      available: true,
-      capacity: 4,
-    },
-  ];
+  const [venues, setVenues] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
+    const { showToast } = useToast();
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(6);
+
+  useEffect(() => {
+    const loadVenues = async () => {
+      try {
+        setLoading(true);
+        setFetchError(null);
+        const { data } = await api.get('/rooms', { params: { page, limit } });
+        if (Array.isArray(data) || Array.isArray(data.data)) {
+          const rows = Array.isArray(data) ? data : data.data;
+            setVenues(rows.map(r => ({
+            id: r.id,
+            name: r.name,
+            type: r.type || 'Badminton',
+            price: r.price_per_hour || r.price || 50000,
+            priceDisplay: r.price_per_hour ? `Rp. ${r.price_per_hour} /jam` : 'Rp. 50,000 /jam',
+            image: r.image || 'https://via.placeholder.com/400x250',
+            location: r.location || 'Gedung Olahraga',
+            rating: r.rating || 4.6,
+            facilities: r.facilities || ['AC', 'Shower'],
+            available: r.is_active === 1,
+            capacity: r.capacity || 4,
+          })));
+        }
+      } catch (err) {
+        console.warn('Failed to load rooms from backend', err);
+        setFetchError(err);
+        showToast('Gagal memuat lapangan; silakan Retry', 'error');
+      }
+      finally { setLoading(false); }
+    }
+    loadVenues();
+  }, []);
+
+  const retryLoad = async () => {
+    try {
+      setFetchError(null);
+      setLoading(true);
+      const { data } = await api.get('/rooms', { params: { page, limit } });
+      const rows = Array.isArray(data) ? data : data.data;
+      setVenues(rows.map(r => ({
+        id: r.id,
+        name: r.name,
+        type: r.type || 'Badminton',
+        price: r.price_per_hour || r.price || 50000,
+        priceDisplay: r.price_per_hour ? `Rp. ${r.price_per_hour} /jam` : 'Rp. 50,000 /jam',
+        image: r.image || 'https://via.placeholder.com/400x250',
+        location: r.location || 'Gedung Olahraga',
+        rating: r.rating || 4.6,
+        facilities: r.facilities || ['AC', 'Shower'],
+        available: r.is_active === 1,
+        capacity: r.capacity || 4,
+      })));
+      showToast('Berhasil memuat ulang lapangan', 'info');
+    } catch (err) {
+      setFetchError(err);
+      showToast('Gagal memuat lapangan lagi', 'error');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const sportTypes = ["Semua", "Badminton", "Futsal", "Tennis", "Basketball"];
   const priceRanges = [
@@ -125,6 +150,7 @@ const Field = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Rentang Harga
               </label>
+          
               <select
                 value={priceRange}
                 onChange={(e) => setPriceRange(e.target.value)}
@@ -151,6 +177,14 @@ const Field = () => {
               </button>
             </div>
           </div>
+          {fetchError && (
+            <div className="mt-4 p-4 bg-red-50 text-center rounded">
+              <div className="mb-2 text-red-700">Gagal memuat daftar lapangan.</div>
+              <div>
+                <button onClick={retryLoad} className="px-4 py-2 bg-blue-600 text-white rounded">Retry</button>
+              </div>
+            </div>
+          )}
 
           <div className="mt-4 text-sm text-gray-600">
             Menampilkan{" "}
@@ -195,19 +229,23 @@ const Field = () => {
                     {venue.name}
                   </h3>
                   <div className="flex items-center">
-                    <span className="text-yellow-400">?</span>
-                    <span className="ml-1 text-sm text-gray-600">
-                      {venue.rating}
-                    </span>
+                    <svg
+                      className="w-5 h-5 text-yellow-400"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    <span className="ml-1 text-sm text-gray-600">{venue.rating}</span>
                   </div>
                 </div>
 
                 <div className="space-y-2 mb-4">
                   <div className="text-sm text-gray-600">
-                    ?? {venue.location}
+                    {venue.location || 'Lokasi tidak tersedia'}
                   </div>
                   <div className="text-sm text-gray-600">
-                    ?? Kapasitas: {venue.capacity} orang
+                    Kapasitas: {venue.capacity || '-'} orang
                   </div>
                 </div>
 
@@ -225,12 +263,11 @@ const Field = () => {
                 <div className="flex justify-between items-center">
                   <div>
                     <span className="text-2xl font-bold text-blue-600">
-                      {venue.priceDisplay}
+                      {formatCurrency(venue.price)}/jam
                     </span>
                   </div>
                   <Link
-                    // to={`/user/details/${venue.id}`}
-                    to={`/details`}
+                    to={`/lapangan/${venue.id}`}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     Lihat Detail

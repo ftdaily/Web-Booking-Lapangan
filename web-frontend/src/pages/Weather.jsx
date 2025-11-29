@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import api from "../utils/api";
 
 const Weather = () => {
   const [city, setCity] = useState("Jakarta");
@@ -74,9 +75,21 @@ const Weather = () => {
     setError("");
 
     try {
-      // Simulasi API call dengan delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
+      // Call backend API
+      const { data } = await api.get(`/weather?city=${encodeURIComponent(city)}`);
+      // Expecting backend returns { city, temperature, description, humidity }
+      setWeather({
+        city: data.city,
+        temperature: data.temperature,
+        description: data.description,
+        humidity: data.humidity,
+        windSpeed: data.windSpeed || 0,
+        icon: data.icon || '☀️',
+        recommendation: data.recommendation || 'Cek kondisi cuaca untuk aktivitas olahraga!',
+      });
+    } catch (err) {
+      console.warn('Error fetching weather data from backend, falling back to mock', err);
+      // Fallback to mock
       const weatherData = mockWeatherData[city] || {
         city: city,
         temperature: Math.floor(Math.random() * 15) + 20,
@@ -90,8 +103,6 @@ const Weather = () => {
       };
 
       setWeather(weatherData);
-    } catch (err) {
-      setError("Gagal mengambil data cuaca");
     } finally {
       setLoading(false);
     }

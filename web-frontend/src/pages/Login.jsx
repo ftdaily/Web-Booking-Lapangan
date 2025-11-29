@@ -1,5 +1,6 @@
 ﻿import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -7,6 +8,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login, user: authUser } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,17 +25,17 @@ export default function Login() {
     }
 
     setLoading(true);
-
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      if (email === "admin@sporthub.com") {
-        navigate("/admin");
+      const data = await login(email, password);
+      const user = data?.user || authUser || data;
+      if (user && user.role === 'admin') {
+        navigate('/admin');
       } else {
-        navigate("/user");
+        navigate('/');
       }
-    } catch (error) {
-      setError("Login gagal. Silakan coba lagi.");
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(err?.response?.data?.message || 'Login gagal. Silakan coba lagi.');
     } finally {
       setLoading(false);
     }

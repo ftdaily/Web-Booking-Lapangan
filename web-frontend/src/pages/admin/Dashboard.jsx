@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import api from '../../utils/api';
+import { normalizeBookingList, formatCurrency } from '../../utils/bookings';
+import { useToast } from '../../contexts/ToastContext';
 
 const Dashboard = () => {
   const [stats] = useState({
@@ -8,35 +11,7 @@ const Dashboard = () => {
     todayBookings: 12,
   });
 
-  const [recentBookings] = useState([
-    {
-      id: 1,
-      customer: "Ahmad Rizki",
-      court: "Lapangan Badminton A",
-      date: "2024-11-28",
-      time: "14:00 - 15:00",
-      status: "confirmed",
-      amount: 50000,
-    },
-    {
-      id: 2,
-      customer: "Sari Dewi",
-      court: "Lapangan Futsal Indoor",
-      date: "2024-11-28",
-      time: "19:00 - 20:00",
-      status: "pending",
-      amount: 120000,
-    },
-    {
-      id: 3,
-      customer: "Budi Santoso",
-      court: "Lapangan Badminton B",
-      date: "2024-11-28",
-      time: "16:00 - 17:00",
-      status: "confirmed",
-      amount: 45000,
-    },
-  ]);
+  const [recentBookings, setRecentBookings] = useState([]);
 
   const [courtUsage] = useState([
     { court: "Lapangan Badminton A", usage: 85, bookings: 23 },
@@ -74,12 +49,23 @@ const Dashboard = () => {
     );
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-    }).format(amount);
-  };
+  const { showToast } = useToast();
+
+  useEffect(() => {
+    const loadRecent = async () => {
+      try {
+        const { data } = await api.get('/bookings');
+        const list = Array.isArray(data) ? data : (data?.data || []);
+        setRecentBookings(normalizeBookingList(list).slice(0, 3));
+      } catch (err) {
+        console.warn('Failed to fetch recent bookings', err);
+        showToast('Gagal memuat booking terbaru', 'error');
+      }
+    };
+    loadRecent();
+  }, []);
+
+  // use formatCurrency from utils/bookings
 
   return (
     <div className="min-h-screen bg-gray-50">

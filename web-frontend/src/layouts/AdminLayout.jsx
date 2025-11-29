@@ -1,8 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import CourtModalForm from '../components/CourtModalForm';
+import api from '../utils/api';
 import { Link, useLocation } from "react-router-dom";
 
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Court modal state to be used globally within admin layout
+  const [courtModalOpen, setCourtModalOpen] = useState(false);
+  const [courtModalMode, setCourtModalMode] = useState('add'); // 'add' or 'edit'
+  const [courtModalData, setCourtModalData] = useState(null);
   const location = useLocation();
 
   const navigation = [
@@ -131,6 +137,40 @@ const AdminLayout = ({ children }) => {
   const isActive = (path) => {
     return location.pathname === path;
   };
+
+  // Admin layout does not handle auth here; route-level guard will handle it
+
+  useEffect(() => {
+    const onOpenAdd = () => {
+      setCourtModalMode('add');
+      setCourtModalData(null);
+      setCourtModalOpen(true);
+    };
+    const onOpenEdit = async (e) => {
+      const id = e?.detail?.id;
+      if (!id) return;
+      // Fetch room details and open edit form
+      try {
+        const { data } = await api.get(`/rooms/${id}`);
+        const room = data?.data || data || data?.room || data;
+        setCourtModalMode('edit');
+        setCourtModalData(room);
+        setCourtModalOpen(true);
+      } catch (err) {
+        console.warn('Failed to fetch room for edit', err);
+        // open empty edit form as fallback
+        setCourtModalMode('edit');
+        setCourtModalData({ id });
+        setCourtModalOpen(true);
+      }
+    };
+    window.addEventListener('openAddCourt', onOpenAdd);
+    window.addEventListener('openEditCourt', onOpenEdit);
+    return () => {
+      window.removeEventListener('openAddCourt', onOpenAdd);
+      window.removeEventListener('openEditCourt', onOpenEdit);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
@@ -278,12 +318,12 @@ const AdminLayout = ({ children }) => {
                     >
                       Tambah Booking
                     </Link>
-                    <Link
-                      to="/admin/manage-courts"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    <button
+                      onClick={() => window.dispatchEvent(new CustomEvent('openAddCourt'))}
+                      className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       Tambah Lapangan
-                    </Link>
+                    </button>
                     <Link
                       to="/admin/manage-users"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -318,12 +358,7 @@ const AdminLayout = ({ children }) => {
 
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 z-10">
                   <div className="py-1">
-                    <Link
-                      to="/admin/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Profil Admin
-                    </Link>
+                    {/* Removed Profil Admin; admins can access the dashboard via sidebar */}
                     <Link
                       to="/admin/settings"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -346,6 +381,25 @@ const AdminLayout = ({ children }) => {
             </div>
           </div>
         </header>
+
+        {/* Global Court Modal Overlay (Add/Edit) */}
+        {courtModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white rounded-lg max-w-3xl w-full p-6">
+              <h3 className="text-lg font-semibold mb-4">{courtModalMode === 'add' ? 'Tambah Lapangan' : 'Edit Lapangan'}</h3>
+              <CourtModalForm
+                initialData={courtModalData}
+                mode={courtModalMode}
+                onClose={() => setCourtModalOpen(false)}
+                onSaved={() => {
+                  // notify other pages to reload rooms
+                  window.dispatchEvent(new CustomEvent('roomSaved'));
+                  setCourtModalOpen(false);
+                }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Main Content Area */}
         <main className="flex-1 overflow-auto">{children}</main>

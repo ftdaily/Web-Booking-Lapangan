@@ -1,10 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from 'react-router-dom';
+import api from "../../utils/api";
+import { useToast } from '../../contexts/ToastContext';
 
 const Details = () => {
-  const [selectedDate, setSelectedDate] = useState("");
+  const { id } = useParams();
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedSession, setSelectedSession] = useState("");
   const [uploadedFile, setUploadedFile] = useState(null);
   const [showBookingForm, setShowBookingForm] = useState(false);
+  const [room, setRoom] = useState(null);
+  const [bookedSlots, setBookedSlots] = useState([]);
+  const { showToast } = useToast();
 
   // Sample session data - some are booked, some are available
   const sessions = [
@@ -22,7 +29,9 @@ const Details = () => {
 
   const handleSessionSelect = (sessionId) => {
     const session = sessions.find((s) => s.id === sessionId);
-    if (session.status === "available") {
+    const [start] = session.time.split(' - ');
+    const isBooked = bookedSlots.some(b => b.start_time === start);
+    if (!isBooked) {
       setSelectedSession(sessionId);
       setShowBookingForm(true);
     }
@@ -33,6 +42,33 @@ const Details = () => {
     setUploadedFile(file);
   };
 
+  useEffect(() => {
+    const loadRoom = async () => {
+      try {
+        if (!id) return;
+        const { data } = await api.get(`/rooms/${id}`);
+        setRoom(data);
+      } catch (err) {
+        console.warn('Failed to load room', err);
+      }
+    };
+    loadRoom();
+  }, [id]);
+
+  useEffect(() => {
+    const loadAvailability = async () => {
+      try {
+        if (!id || !selectedDate) return;
+        const { data } = await api.get(`/rooms/${id}/availability`, { params: { date: selectedDate } });
+        setBookedSlots(data.data || []);
+      } catch (err) {
+        console.warn('Error loading availability', err);
+        setBookedSlots([]);
+      }
+    };
+    loadAvailability();
+  }, [id, selectedDate]);
+
   const handleBookingSubmit = (event) => {
     event.preventDefault();
     if (!selectedDate || !selectedSession || !uploadedFile) {
@@ -41,9 +77,30 @@ const Details = () => {
     }
 
     const selectedSessionData = sessions.find((s) => s.id === selectedSession);
-    alert(
-      `Pemesanan berhasil!\nLapangan: Lapangan Badminton A\nTanggal: ${selectedDate}\nSesi: ${selectedSessionData.time}\nHarga: ${selectedSessionData.price}\nDokumen: ${uploadedFile.name}`
-    );
+    // Build payload for backend
+    const payload = {
+      room_id: id || 1,
+      booking_date: selectedDate,
+      start_time: selectedSessionData.time.split(' - ')[0],
+      end_time: selectedSessionData.time.split(' - ')[1],
+      total_price: parseInt(selectedSessionData.price.replace(/[^0-9]/g, '')),
+      note: 'Booking via frontend',
+    };
+
+    // Post to backend with file uploading (if supported) - fallback to local alert if backend unavailable
+    const submitBooking = async () => {
+      try {
+        // Optionally: implement formData if backend supports file upload
+        await api.post('/bookings', payload);
+        showToast('Pemesanan berhasil! Cek halaman Riwayat Booking.', 'info');
+        setShowBookingForm(false);
+      } catch (err) {
+        console.warn('Booking failed, fallback to local success message', err);
+        showToast('Gagal memesan: ' + (err?.response?.data?.message || err?.message || 'Kesalahan'), 'error');
+        setShowBookingForm(false);
+      }
+    };
+    submitBooking();
   };
 
   return (
@@ -62,7 +119,7 @@ const Details = () => {
             <div className="md:w-1/2 p-8">
               <div className="mb-6">
                 <h1 className="text-4xl font-bold text-gray-800 mb-2">
-                  Lapangan Badminton A
+                  {room?.name || 'Lapangan Badminton A'}
                 </h1>
                 <p className="text-xl text-gray-600 mb-4">Fasilitas Premium</p>
                 <div className="bg-blue-50 p-4 rounded-lg">
@@ -89,37 +146,40 @@ const Details = () => {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {sessions.map((session) => (
-              <div
-                key={session.id}
-                onClick={() => handleSessionSelect(session.id)}
-                className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
-                  session.status === "available"
-                    ? selectedSession === session.id
-                      ? "border-green-500 bg-green-50 shadow-lg"
-                      : "border-green-200 bg-white hover:border-green-400 hover:shadow-md"
-                    : "border-red-200 bg-red-50 cursor-not-allowed opacity-60"
-                }`}
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-semibold text-gray-800">
-                    {session.time}
-                  </span>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      session.status === "available"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {session.status === "available" ? "Tersedia" : "Dipesan"}
-                  </span>
+            {sessions.map((session) => {
+              const start = session.time.split(' - ')[0];
+              const isBooked = bookedSlots.some(b => b.start_time === start);
+              const disabled = isBooked || session.status === 'booked';
+              return (
+                <div
+                  key={session.id}
+                  onClick={() => handleSessionSelect(session.id)}
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                    !disabled
+                      ? selectedSession === session.id
+                        ? "border-green-500 bg-green-50 shadow-lg"
+                        : "border-green-200 bg-white hover:border-green-400 hover:shadow-md"
+                      : "border-red-200 bg-red-50 cursor-not-allowed opacity-60"
+                  }`}
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-semibold text-gray-800">
+                      {session.time}
+                    </span>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        !disabled
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {!disabled ? "Tersedia" : "Dipesan"}
+                    </span>
+                  </div>
+                  <div className="text-lg font-bold text-blue-600">{session.price}</div>
                 </div>
-                <div className="text-lg font-bold text-blue-600">
-                  {session.price}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -200,7 +260,7 @@ const Details = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span>Lapangan:</span>
-                    <span className="font-medium">Lapangan Badminton A</span>
+                    <span className="font-medium">{room?.name || 'Lapangan Badminton A'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Tanggal:</span>
