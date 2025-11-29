@@ -15,6 +15,8 @@ const Field = () => {
     const { showToast } = useToast();
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(6);
+    const [total, setTotal] = useState(0);
+    const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const loadVenues = async () => {
@@ -37,7 +39,10 @@ const Field = () => {
             available: r.is_active === 1,
             capacity: r.capacity || 4,
           })));
-        }
+          }
+          const total = data?.total || 0;
+          setTotal(total);
+          setTotalPages(total ? Math.ceil(total / limit) : 1);
       } catch (err) {
         console.warn('Failed to load rooms from backend', err);
         setFetchError(err);
@@ -46,7 +51,11 @@ const Field = () => {
       finally { setLoading(false); }
     }
     loadVenues();
-  }, []);
+  }, [page]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [totalPages]);
 
   const retryLoad = async () => {
     try {
@@ -67,6 +76,9 @@ const Field = () => {
         available: r.is_active === 1,
         capacity: r.capacity || 4,
       })));
+      const total = data?.total || 0;
+      setTotal(total);
+      setTotalPages(total ? Math.ceil(total / limit) : 1);
       showToast('Berhasil memuat ulang lapangan', 'info');
     } catch (err) {
       setFetchError(err);
@@ -284,6 +296,23 @@ const Field = () => {
               Tidak ada lapangan ditemukan
             </div>
             <p className="text-gray-600">Coba ubah filter pencarian Anda</p>
+          </div>
+        )}
+        {total > 0 && (
+          <div className="mt-8 flex justify-center">
+            <nav className="flex items-center space-x-2">
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className={`px-3 py-2 text-sm font-medium ${page <= 1 ? 'text-gray-300 border border-gray-200' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'} rounded-md`}>
+                Previous
+              </button>
+              {Array.from({ length: totalPages }).map((_, i) => (
+                <button key={i} onClick={() => setPage(i + 1)} className={`px-3 py-2 text-sm font-medium ${page === (i + 1) ? 'text-white bg-blue-600 border border-blue-600' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'} rounded-md`}>
+                  {i + 1}
+                </button>
+              ))}
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className={`px-3 py-2 text-sm font-medium ${page >= totalPages ? 'text-gray-300 border border-gray-200' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'} rounded-md`}>
+                Next
+              </button>
+            </nav>
           </div>
         )}
       </div>

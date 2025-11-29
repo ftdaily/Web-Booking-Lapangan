@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams } from 'react-router-dom';
 import api from "../../utils/api";
 import { useToast } from '../../contexts/ToastContext';
+import QrModal from '../../components/QrModal';
 
 const Details = () => {
   const { id } = useParams();
@@ -11,6 +12,8 @@ const Details = () => {
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [room, setRoom] = useState(null);
   const [bookedSlots, setBookedSlots] = useState([]);
+  const [qr, setQr] = useState({ open: false, orderId: null, bookingId: null, message: '' });
+  const pollIntervalRef = useRef(null);
   const { showToast } = useToast();
 
   // Sample session data - some are booked, some are available
@@ -91,8 +94,49 @@ const Details = () => {
     const submitBooking = async () => {
       try {
         // Optionally: implement formData if backend supports file upload
-        await api.post('/bookings', payload);
+        const { data } = await api.post('/bookings', payload);
         showToast('Pemesanan berhasil! Cek halaman Riwayat Booking.', 'info');
+        const bookingId = data?.id;
+        // Ask backend to create a simulated payment and show QR
+        if (bookingId) {
+          try {
+            const { data: paymentData } = await api.post(`/payments/${bookingId}/create`);
+            const orderId = paymentData?.order_id || paymentData?.orderId || null;
+            if (orderId) {
+              setQr({ open: true, orderId, bookingId, message: 'Scan QR untuk melanjutkan pembayaran (Mock)' });
+              // Poll booking status and close modal when confirmed
+              let elapsed = 0;
+              const interval = setInterval(async () => {
+                elapsed += 2000;
+                try {
+                  const { data: booking } = await api.get(`/bookings/${bookingId}`);
+                  const status = booking?.status;
+                  if (status === 'confirmed' || status === 'completed') {
+                    setQr({ open: false, orderId: null, bookingId: null, message: '' });
+                    clearInterval(interval);
+                    pollIntervalRef.current = null;
+                    showToast('Pembayaran terdeteksi - booking telah lunas', 'info');
+                  }
+                } catch (err) {
+                  console.warn('Error polling booking status', err);
+                }
+                if (elapsed > 120000) { clearInterval(interval); showToast('Waktu pembayaran habis. Tutup QR dan coba lagi.', 'error'); }
+              }, 2000);
+              pollIntervalRef.current = interval;
+            }
+          } catch (err) {
+            console.warn('Failed to create payment', err);
+            const status = err?.response?.status;
+            if (status === 401) {
+              showToast('Silakan login untuk melanjutkan pembayaran', 'error');
+              // window.location.href = '/auth/login';
+            } else if (status === 403) {
+              showToast('Anda tidak berhak membayar booking ini', 'error');
+            } else {
+              showToast('Gagal membuat pembayaran', 'error');
+            }
+          }
+        }
         setShowBookingForm(false);
       } catch (err) {
         console.warn('Booking failed, fallback to local success message', err);
@@ -305,6 +349,7 @@ const Details = () => {
           </div>
         )}
       </div>
+      <QrModal open={qr.open} onClose={() => { setQr({ open: false, orderId: null, bookingId: null, message: '' }); if (pollIntervalRef.current) { clearInterval(pollIntervalRef.current); pollIntervalRef.current = null; } }} orderId={qr.orderId} message={qr.message} />
     </div>
   );
 };

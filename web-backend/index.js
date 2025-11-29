@@ -16,11 +16,20 @@ const weatherRoutes = require('./routes/weatherRoutes');
 const roomsRoutes = require('./routes/roomsRoutes');
 const bookingsRoutes = require('./routes/bookingsRoutes');
 const usersRoutes = require('./routes/usersRoutes');
+const paymentsRoutes = require('./routes/paymentsRoutes');
 
 // Middleware
 // Allow CORS with cookies (credentials) for the frontend
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://127.0.0.1:3000';
-const allowedOrigins = [FRONTEND_URL, 'http://localhost:3000', 'http://127.0.0.1:3000'];
+const allowedOrigins = [
+    FRONTEND_URL,
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+];
 app.use(cors({
     origin: function (origin, callback) {
         // Allow requests with no origin (like mobile apps or curl)
@@ -43,6 +52,7 @@ app.use('/api/weather', weatherRoutes); // Add weather route
 app.use('/api/rooms', roomsRoutes);
 app.use('/api/bookings', bookingsRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/payments', paymentsRoutes);
 
 // Rute Tes
 app.get('/', (req, res) => {

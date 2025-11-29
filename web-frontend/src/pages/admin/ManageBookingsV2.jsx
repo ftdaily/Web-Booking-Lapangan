@@ -8,17 +8,30 @@ const ManageBookingsV2 = () => {
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState(null);
   const { showToast } = useToast();
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const [filterStatus, setFilterStatus] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
+
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [filterStatus, searchTerm, selectedDate]);
 
   useEffect(() => {
     const loadBookings = async () => {
       try {
         setLoading(true);
         setFetchError(null);
-        const { data } = await api.get('/bookings');
+        const { data } = await api.get('/bookings', { params: { page, limit, status: filterStatus || undefined } });
         const list = Array.isArray(data) ? data : (data?.data || []);
+        const total = data?.total || 0;
+        const totalP = data?.totalPages || (total ? Math.ceil(total / limit) : 1);
+        setTotal(total);
+        setTotalPages(totalP);
         setBookings(normalizeBookingList(list));
       } catch (err) {
         console.warn('Failed to load bookings', err);
@@ -29,12 +42,16 @@ const ManageBookingsV2 = () => {
       }
     };
     loadBookings();
-  }, []);
+  }, [page, filterStatus]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [totalPages]);
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      confirmed: { bg: 'bg-green-100', text: 'text-green-800', label: 'Dikonfirmasi' },
-      pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Menunggu' },
+      confirmed: { bg: 'bg-green-100', text: 'text-green-800', label: 'LUNAS' },
+      pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Dipesan' },
       completed: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Selesai' },
       cancelled: { bg: 'bg-red-100', text: 'text-red-800', label: 'Dibatalkan' },
     };
@@ -60,8 +77,11 @@ const ManageBookingsV2 = () => {
     try {
       setFetchError(null);
       setLoading(true);
-      const { data } = await api.get('/bookings');
+      const { data } = await api.get('/bookings', { params: { page, limit } });
       const list = Array.isArray(data) ? data : (data?.data || []);
+      const total = data?.total || 0;
+      const totalP = data?.totalPages || (total ? Math.ceil(total / limit) : 1);
+      setTotalPages(totalP);
       setBookings(normalizeBookingList(list));
       showToast('Berhasil memuat booking', 'info');
     } catch (err) {
@@ -108,6 +128,9 @@ const ManageBookingsV2 = () => {
     if (booking.status === 'confirmed') {
       actions.push(<button key="complete" onClick={() => handleStatusChange(booking.id, 'completed')} className="bg-blue-500 text-white px-3 py-1 rounded text-sm">Selesai</button>);
     }
+    // Allow admin simulate settle / refund via payments API
+    actions.push(<button key="simPay" onClick={async () => { try { await api.post(`/payments/${booking.id}/simulate`); setBookings(prev => prev.map(b => b.id === booking.id ? { ...b, status: 'confirmed' } : b)); showToast('Simulasi pembayaran berhasil', 'info'); } catch (err) { console.warn('Simulate pay failed', err); showToast('Gagal simulasi pembayaran', 'error'); } }} className="bg-indigo-500 text-white px-3 py-1 rounded text-sm">Simulate Pay</button>);
+    actions.push(<button key="simRefund" onClick={async () => { if (!confirm('Simulate refund?')) return; try { await api.post(`/payments/${booking.id}/refund`); setBookings(prev => prev.map(b => b.id === booking.id ? { ...b, status: 'cancelled' } : b)); showToast('Simulasi refund berhasil', 'info'); } catch (err) { console.warn('Simulate refund failed', err); showToast('Gagal simulasi refund', 'error'); } }} className="bg-gray-700 text-white px-3 py-1 rounded text-sm">Simulate Refund</button>);
     actions.push(<button key="delete" onClick={() => handleDeleteBooking(booking.id)} className="bg-gray-500 text-white px-3 py-1 rounded text-sm">Hapus</button>);
     return actions;
   };
@@ -204,6 +227,24 @@ const ManageBookingsV2 = () => {
                 ))}
               </tbody>
             </table>
+            {/* Pagination */}
+            {total > 0 && (
+              <div className="mt-4 flex justify-center">
+                <nav className="flex items-center space-x-2">
+                  <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className={`px-3 py-2 text-sm font-medium ${page <= 1 ? 'text-gray-300 border border-gray-200' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'} rounded-md`}>
+                    Previous
+                  </button>
+                  {Array.from({ length: totalPages }).map((_, i) => (
+                    <button key={i} onClick={() => setPage(i + 1)} className={`px-3 py-2 text-sm font-medium ${page === (i + 1) ? 'text-white bg-blue-600 border border-blue-600' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'} rounded-md`}>
+                      {i + 1}
+                    </button>
+                  ))}
+                  <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className={`px-3 py-2 text-sm font-medium ${page >= totalPages ? 'text-gray-300 border border-gray-200' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'} rounded-md`}>
+                    Next
+                  </button>
+                </nav>
+              </div>
+            )}
           </div>
           {filteredBookings.length === 0 && (
             <div className="text-center py-12">

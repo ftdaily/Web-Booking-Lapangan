@@ -7,36 +7,42 @@ exports.listBookings = async (req, res) => {
     const offset = (page - 1) * limit;
     const status = req.query.status || '';
     const userIdFilter = req.query.user_id || null;
-
     // return more frontend-friendly fields (customer, phone, court, date, time, amount, bookingCode, createdAt)
-    let query = `SELECT b.*, u.name as customer, u.phone as phone, r.name as court, 
+    let baseSelect = `SELECT b.*, u.name as customer, u.phone as phone, r.name as court, 
       b.booking_date as date, CONCAT(b.start_time, ' - ', b.end_time) as time, 
       b.total_price as amount, b.created_at as createdAt, CONCAT('BK', LPAD(b.id, 4, '0')) as bookingCode 
       FROM bookings b JOIN users u ON u.id = b.user_id JOIN rooms r ON r.id = b.room_id WHERE 1=1`;
+    let whereClause = '';
     const params = [];
 
     if (status) {
-      query += ' AND b.status = ?';
+      whereClause += ' AND b.status = ?';
       params.push(status);
     }
 
     if (userIdFilter) {
-      query += ' AND b.user_id = ?';
+      whereClause += ' AND b.user_id = ?';
       params.push(userIdFilter);
     }
 
     // default: if not admin, only its own bookings
     if (!req.user || req.user.role !== 'admin') {
-      query += ' AND b.user_id = ?';
+      whereClause += ' AND b.user_id = ?';
       params.push(req.user?.id || 0);
     }
 
-    query += ' ORDER BY b.booking_date DESC, b.start_time LIMIT ? OFFSET ?';
-    params.push(limit, offset);
+    const dataQuery = baseSelect + whereClause + ' ORDER BY b.booking_date DESC, b.start_time LIMIT ? OFFSET ?';
+    const dataParams = [...params, limit, offset];
 
-    const [rows] = await db.query(query, params);
+    const countQuery = 'SELECT COUNT(*) as total FROM bookings b WHERE 1=1' + whereClause;
+    const countParams = [...params];
+    const [countRows] = await db.query(countQuery, countParams);
+    const total = countRows && countRows.length ? (countRows[0].total || 0) : 0;
+    const totalPages = Math.max(1, Math.ceil(total / limit));
 
-    res.json({ data: rows, page, limit });
+    const [rows] = await db.query(dataQuery, dataParams);
+
+    res.json({ data: rows, page, limit, total, totalPages });
   } catch (err) {
     console.error('Error listing bookings', err);
     res.status(500).json({ message: 'Failed to get bookings' });

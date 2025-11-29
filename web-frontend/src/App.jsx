@@ -15,6 +15,7 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Field from "./pages/Field.jsx";
 import Profile from "./pages/user/Profile";
+import Weather from "./pages/Weather.jsx";
 
 // Admin Pages
 import Dashboard from "./pages/admin/Dashboard";
@@ -47,6 +48,7 @@ function App() {
             </UserLayout>
           }
         />
+        
         <Route
           path="/lapangan/:id"
           element={
@@ -145,6 +147,14 @@ function App() {
           element={
             <UserLayout>
               <Field />
+            </UserLayout>
+          }
+        />
+        <Route
+          path="/weather"
+          element={
+            <UserLayout>
+              <Weather />
             </UserLayout>
           }
         />

@@ -44,7 +44,7 @@ const UserLayout = ({ children }) => {
                   </svg>
                 </div>
                 <span className="text-xl font-bold text-gray-900">
-                  SportHub
+                  HG
                 </span>
               </Link>
             </div>

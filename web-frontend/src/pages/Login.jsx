@@ -46,7 +46,7 @@ export default function Login() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-900">
-            Masuk ke SportHub
+            Masuk ke HG
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Atau{" "}
@@ -146,35 +146,9 @@ export default function Login() {
             </div>
 
             <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Demo Akun</span>
-                </div>
-              </div>
+              
 
-              <div className="mt-6">
-                <div className="p-4 border border-gray-200 rounded-lg bg-gray-50">
-                  <div className="text-sm">
-                    <div className="font-medium text-gray-900 mb-2">
-                      Akun Demo:
-                    </div>
-                    <div className="space-y-1 text-gray-600">
-                      <div>
-                        <strong>Admin:</strong> admin@sporthub.com
-                      </div>
-                      <div>
-                        <strong>User:</strong> user@sporthub.com
-                      </div>
-                      <div>
-                        <strong>Password:</strong> 123456
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              
             </div>
           </form>
         </div>

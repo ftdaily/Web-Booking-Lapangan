@@ -1,14 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import api from "../../utils/api";
 import { normalizeBookingList, formatCurrency, bookingCodeFromId, formatDate } from '../../utils/bookings';
 import { useToast } from '../../contexts/ToastContext';
+import QrModal from '../../components/QrModal';
 
 const Booking = () => {
   
   const [bookings, setBookings] = useState([]);
+  const [qr, setQr] = useState({ open: false, orderId: null, bookingId: null, message: '' });
+  const pollIntervalRef = useRef(null);
   const [fetchError, setFetchError] = useState(null);
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
 
   
 
@@ -35,8 +42,12 @@ const Booking = () => {
       try {
         setLoading(true);
         setFetchError(null);
-        const res = await api.get('/bookings');
+        const res = await api.get('/bookings', { params: { page, limit } });
         const list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+        const total = res.data?.total || 0;
+        const totalP = res.data?.totalPages || (total ? Math.ceil(total / limit) : 1);
+        setTotal(total);
+        setTotalPages(totalP);
         setBookings(normalizeBookingList(list));
       } catch (err) {
         console.warn('Failed to fetch bookings from backend', err);
@@ -45,7 +56,12 @@ const Booking = () => {
       }
     };
     loadBookings();
-  }, []);
+  }, [page]);
+
+  // If totalPages shrinks below current page, clamp to last page
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [totalPages]);
 
   const totalBookings = bookings.length;
   const confirmedCount = bookings.filter((b) => b.status === 'confirmed').length;
@@ -109,12 +125,12 @@ const Booking = () => {
       confirmed: {
         bg: "bg-green-100",
         text: "text-green-800",
-        label: "Dikonfirmasi",
+        label: "LUNAS",
       },
       pending: {
         bg: "bg-yellow-100",
         text: "text-yellow-800",
-        label: "Menunggu",
+        label: "Dipesan",
       },
       completed: { bg: "bg-blue-100", text: "text-blue-800", label: "Selesai" },
       cancelled: {
@@ -145,6 +161,9 @@ const Booking = () => {
             <button onClick={() => handleEdit(bookingId)} className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors">
               Edit
             </button>
+            <button onClick={() => handlePay(bookingId)} className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition-colors">
+              Bayar
+            </button>
           </div>
         );
       case "confirmed":
@@ -161,6 +180,60 @@ const Booking = () => {
         );
       default:
         return null;
+    }
+  };
+
+  // create payment and show QR modal
+  const handlePay = async (bookingId) => {
+    try {
+      const { data } = await api.post(`/payments/${bookingId}/create`);
+      const orderId = data?.order_id || data?.orderId || null;
+      if (!orderId) {
+        showToast('Tidak dapat membuat pembayaran', 'error');
+        return;
+      }
+      setQr({ open: true, orderId, bookingId, message: 'Scan QR untuk melanjutkan pembayaran (Simulated)' });
+      // Poll booking status every 2s until confirmed
+      let elapsed = 0;
+      const interval = setInterval(async () => {
+        elapsed += 2000;
+        try {
+          const { data: booking } = await api.get(`/bookings/${bookingId}`);
+          const status = booking?.status;
+          if (status === 'confirmed' || status === 'completed') {
+            setQr({ open: false, orderId: null, bookingId: null, message: '' });
+            clearInterval(interval);
+            pollIntervalRef.current = null;
+            // refresh booking list
+            const res = await api.get('/bookings', { params: { page, limit } });
+            const list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+            setBookings(normalizeBookingList(list));
+            showToast('Pembayaran terdeteksi - booking telah lunas', 'info');
+          }
+        } catch (err) {
+          console.warn('Error polling booking status', err);
+        }
+        // Timeout after 2 minutes
+        if (elapsed > 120000) {
+          clearInterval(interval);
+          showToast('Waktu pembayaran habis. Tutup QR dan coba lagi.', 'error');
+        }
+      }, 2000);
+      pollIntervalRef.current = interval;
+    } catch (err) {
+      console.warn('Create payment failed', err);
+      const status = err?.response?.status;
+      if (status === 401) {
+        showToast('Silakan login untuk melanjutkan pembayaran', 'error');
+        // optionally redirect to login
+        // window.location.href = '/auth/login';
+        return;
+      }
+      if (status === 403) {
+        showToast('Anda tidak berhak membayar booking ini', 'error');
+        return;
+      }
+      showToast('Gagal membuat pembayaran', 'error');
     }
   };
 
@@ -326,7 +399,7 @@ const Booking = () => {
             <div className="mb-2 text-red-700">Gagal memuat daftar booking.</div>
             <div>
               <button onClick={() => { setFetchError(null); (async () => {
-                try { const res = await api.get('/bookings'); const list = Array.isArray(res.data) ? res.data : (res.data?.data || []); setBookings(normalizeBookingList(list)); showToast('Berhasil memuat ulang', 'info'); } catch (err) { setFetchError(err); showToast('Gagal memuat booking lagi', 'error'); } })(); }} className="px-4 py-2 bg-blue-600 text-white rounded mr-2">Retry</button>
+                try { const res = await api.get('/bookings', { params: { page, limit } }); const list = Array.isArray(res.data) ? res.data : (res.data?.data || []); const total = res.data?.total || 0; const totalP = res.data?.totalPages || (total ? Math.ceil(total / limit) : 1); setTotal(total); setTotalPages(totalP); setBookings(normalizeBookingList(list)); showToast('Berhasil memuat ulang', 'info'); } catch (err) { setFetchError(err); showToast('Gagal memuat booking lagi', 'error'); } })(); }} className="px-4 py-2 bg-blue-600 text-white rounded mr-2">Retry</button>
             </div>
           </div>
         )}
@@ -440,20 +513,22 @@ const Booking = () => {
           </div>
         )}
 
+        {/* QR Modal */}
+        <QrModal open={qr.open} onClose={() => { setQr({ open: false, orderId: null, bookingId: null, message: '' }); if (pollIntervalRef.current) { clearInterval(pollIntervalRef.current); pollIntervalRef.current = null; } }} orderId={qr.orderId} message={qr.message} />
+
         {/* Pagination */}
-        {bookings.length > 0 && (
+        {total > 0 && (
           <div className="mt-8 flex justify-center">
             <nav className="flex items-center space-x-2">
-              <button className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className={`px-3 py-2 text-sm font-medium ${page <= 1 ? 'text-gray-300 border border-gray-200' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'} rounded-md`}>
                 Previous
               </button>
-              <button className="px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-md">
-                1
-              </button>
-              <button className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                2
-              </button>
-              <button className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+              {Array.from({ length: totalPages }).map((_, i) => (
+                <button key={i} onClick={() => setPage(i + 1)} className={`px-3 py-2 text-sm font-medium ${page === (i + 1) ? 'text-white bg-blue-600 border border-blue-600' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'} rounded-md`}>
+                  {i + 1}
+                </button>
+              ))}
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className={`px-3 py-2 text-sm font-medium ${page >= totalPages ? 'text-gray-300 border border-gray-200' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'} rounded-md`}>
                 Next
               </button>
             </nav>

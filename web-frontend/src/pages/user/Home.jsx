@@ -1,5 +1,6 @@
 import React from "react";
-
+import { Link } from "react-router-dom";
+import Weather from '../../components/Weather';
 const Home = () => {
   const featuredCourts = [
     {
@@ -16,7 +17,7 @@ const Home = () => {
       id: 2,
       name: "Lapangan Badminton B",
       image:
-        "https://images.tokopedia.net/blog-tokopedia-com/uploads/2021/01/Ukuran-Lapangan-Bulu-Tangkis.jpg",
+        "https://asset.ayo.co.id/image/venue/170987582950787.image_cropper_1709875801634_large.jpg",
       price: "Rp. 45,000 - 90,000",
       rating: 4.6,
       location: "Lantai 2, Gedung Olahraga",
@@ -26,7 +27,7 @@ const Home = () => {
       id: 3,
       name: "Lapangan Futsal Indoor",
       image:
-        "https://asset.kompas.com/crops/Fp5rK6HQ-w9h3E_H-k5xqUEjhJY=/0x0:740x493/750x500/data/photo/2020/06/10/5ee07e6e2b0fb.jpg",
+        "https://media.zcreators.id/crop/photo/p2/99/2025/02/11/FotoJet-10-4023391602.jpg",
       price: "Rp. 80,000 - 150,000",
       rating: 4.9,
       location: "Lantai 1, Gedung Olahraga",
@@ -46,13 +47,9 @@ const Home = () => {
             <p className="text-xl md:text-2xl mb-8 text-blue-100">
               Temukan dan pesan lapangan olahraga terbaik untuk aktivitas Anda
             </p>
+            {/* Weather component below title (compact mode for hero) */}
+            <Weather compact />
             <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
-              <button className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-                Lihat Lapangan
-              </button>
-              <button className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
-                Cara Booking
-              </button>
             </div>
           </div>
         </div>
@@ -142,6 +139,8 @@ const Home = () => {
         </div>
       </section>
 
+      
+
       {/* Featured Courts Section */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -209,9 +208,11 @@ const Home = () => {
           </div>
 
           <div className="text-center mt-12">
+            <Link to="/lapangan">
             <button className="bg-white border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
               Lihat Semua Lapangan
             </button>
+              </Link>
           </div>
         </div>
       </section>

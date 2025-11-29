@@ -7,44 +7,7 @@ const Weather = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const mockWeatherData = {
-    Jakarta: {
-      city: "Jakarta",
-      temperature: 28,
-      description: "Cerah berawan",
-      humidity: 75,
-      windSpeed: 15,
-      icon: "⛅",
-      recommendation: "Cuaca bagus untuk olahraga outdoor!",
-    },
-    Surabaya: {
-      city: "Surabaya",
-      temperature: 30,
-      description: "Cerah",
-      humidity: 70,
-      windSpeed: 12,
-      icon: "☀️",
-      recommendation: "Cuaca sangat baik untuk bermain futsal atau basket!",
-    },
-    Bandung: {
-      city: "Bandung",
-      temperature: 25,
-      description: "Berawan",
-      humidity: 80,
-      windSpeed: 10,
-      icon: "☁️",
-      recommendation: "Cuaca sejuk, cocok untuk badminton indoor!",
-    },
-    Yogyakarta: {
-      city: "Yogyakarta",
-      temperature: 27,
-      description: "Cerah",
-      humidity: 65,
-      windSpeed: 8,
-      icon: "☀️",
-      recommendation: "Cuaca sempurna untuk tennis outdoor!",
-    },
-  };
+  
 
   const sportRecommendations = [
     { sport: "Badminton", weather: ["Berawan", "Hujan"], location: "Indoor" },

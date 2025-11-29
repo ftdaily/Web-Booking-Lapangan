@@ -32,7 +32,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow">
+    <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow my-32">
       <h2 className="text-xl font-semibold mb-4">Profil Saya</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
