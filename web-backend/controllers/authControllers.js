@@ -1,1 +1,362 @@
-const HOrAS=raymaru;function raymaru(Raymaru,Horas){const rAymaru=horas();return raymaru=function(hOras,HOras){hOras=hOras-0xa3;let RAymaru=rAymaru[hOras];return RAymaru;},raymaru(Raymaru,Horas);}function horas(){const HORAS=['cookies','env','bcryptjs','Not\x20authenticated','../config/db','JWT_SECRET','Invalid\x20token','Gagal\x20mendaftarkan\x20akun.\x20Silakan\x20coba\x20lagi.','Login\x20attempt:','\x20WHERE\x20id\x20=\x20?','error','627090fppuSF','NPM\x20harus\x20diisi.','npm','474vlHBIX','cookie','LOGOUT','mahasiswa','New\x20user\x20registered:','Password\x20harus\x20diisi.','name\x20=\x20?','Error\x20pada\x20registrasi:','Login\x20berhasil.','Terjadi\x20kesalahan\x20pada\x20server.','users','User\x20not\x20found','clearCookie','is_active','109235KzoNwX','length','Error\x20during\x20logout','Email\x20harus\x20diisi.','lax','225680zIWdLP','login','insertId','json','logout','Login\x20success:','Database\x20error\x20creating\x20user:','query','password\x20=\x20?','User\x20logged\x20out\x20-\x20ID:\x20','log','1467666IxxCLH','Email\x20atau\x20password\x20salah.','user','Wajib\x20isi\x20semua\x20field.','headers','toLowerCase','Logged\x20out','User\x20logged\x20in\x20-\x20Email:\x20','No\x20changes','Mahasiswa\x20baru\x20-\x20Email:\x20','Field\x20tidak\x20lengkap.','Email\x20atau\x20NPM\x20sudah\x20terdaftar.','SELECT\x20id,\x20name,\x20npm,\x20email,\x20phone,\x20role,\x20is_active\x20FROM\x20users\x20WHERE\x20id\x20=\x20?\x20LIMIT\x201','status','name','production','LOGIN','updateMe','NODE_ENV','body','compare','414511YSgKFq','Error\x20pada\x20login:','register','push','Nomor\x20telepon\x20harus\x20diisi.','Nama\x20harus\x20diisi.','SELECT\x20id\x20FROM\x20users\x20WHERE\x20email\x20=\x20?\x20OR\x20npm\x20=\x20?\x20LIMIT\x201','26258048vrJiqm','Error\x20updating\x20me:','Failed\x20to\x20update\x20profile','Register\x20attempt:','phone\x20=\x20?','Akun\x20Anda\x20tidak\x20aktif.\x20Silakan\x20hubungi\x20admin.','email','origin','password','role','Error\x20in\x20me:','Logout\x20error','INSERT\x20INTO\x20users\x20(name,\x20npm,\x20email,\x20phone,\x20password,\x20role,\x20is_active)\x20VALUES\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20(?,\x20?,\x20?,\x20?,\x20?,\x20\x27mahasiswa\x27,\x200)','\x20-\x20Role:\x20','code','token','trim','Registrasi\x20berhasil.\x20Akun\x20menunggu\x20persetujuan\x20admin.','verify','phone','907314SzSGMV'];horas=function(){return HORAS;};return horas();}(function(rayMAru,RayMAru){const RAyMAru=raymaru,HorAS=rayMAru();while(!![]){try{const hOrAS=-parseInt(RAyMAru(0xd8))/0x1+-parseInt(RAyMAru(0xc3))/0x2+-parseInt(RAyMAru(0xf3))/0x3+parseInt(RAyMAru(0xb8))/0x4+parseInt(RAyMAru(0xff))/0x5+parseInt(RAyMAru(0xa5))/0x6*(-parseInt(RAyMAru(0xb3))/0x7)+parseInt(RAyMAru(0xdf))/0x8;if(hOrAS===RayMAru)break;else HorAS['push'](HorAS['shift']());}catch(rAyMAru){HorAS['push'](HorAS['shift']());}}}(horas,0xbe8e5));const db=require(HOrAS(0xf8)),bcrypt=require(HOrAS(0xf6)),jwt=require('jsonwebtoken'),{addLog}=require('../helper/logHelper'),COOKIE_OPTIONS={'httpOnly':!![],'secure':process['env'][HOrAS(0xd5)]===HOrAS(0xd2),'sameSite':HOrAS(0xb7),'maxAge':0x18*0x3c*0x3c*0x3e8};exports['me']=async(Raymaru,Horas)=>{const raYMAru=HOrAS;try{const hOras=Raymaru['cookies']?.[raYMAru(0xee)];if(!hOras)return Horas[raYMAru(0xd0)](0x191)[raYMAru(0xbb)]({'message':raYMAru(0xf7)});const rAymaru=jwt[raYMAru(0xf1)](hOras,process[raYMAru(0xf5)][raYMAru(0xf9)]),[HOras]=await db['query'](raYMAru(0xcf),[rAymaru['id']]);if(HOras[raYMAru(0xb4)]===0x0)return Horas[raYMAru(0xd0)](0x194)['json']({'message':raYMAru(0xb0)});const RAymaru=HOras[0x0];Horas[raYMAru(0xbb)]({'user':RAymaru});}catch(hoRas){console[raYMAru(0xfe)](raYMAru(0xe9),hoRas),Horas[raYMAru(0xd0)](0x191)[raYMAru(0xbb)]({'message':raYMAru(0xfa)});}},exports[HOrAS(0xd4)]=async(raYmaru,HoRas)=>{const hoRAS=HOrAS;try{const RaYmaru=raYmaru[hoRAS(0xf4)]?.[hoRAS(0xee)];if(!RaYmaru)return HoRas[hoRAS(0xd0)](0x191)[hoRAS(0xbb)]({'message':hoRAS(0xf7)});const rAYmaru=jwt[hoRAS(0xf1)](RaYmaru,process[hoRAS(0xf5)][hoRAS(0xf9)]),hORas=rAYmaru['id'],{name:HORas,phone:RAYmaru,password:horAs}=raYmaru['body'],rayMaru=[],RayMaru=[];HORas&&(rayMaru['push'](hoRAS(0xab)),RayMaru[hoRAS(0xdb)](HORas));RAYmaru&&(rayMaru[hoRAS(0xdb)](hoRAS(0xe3)),RayMaru[hoRAS(0xdb)](RAYmaru));if(horAs){const hOrAs=await bcrypt['hash'](horAs,0xa);rayMaru[hoRAS(0xdb)](hoRAS(0xc0)),RayMaru[hoRAS(0xdb)](hOrAs);}if(rayMaru[hoRAS(0xb4)]===0x0)return HoRas['json']({'message':hoRAS(0xcb)});RayMaru[hoRAS(0xdb)](hORas),await db['query']('UPDATE\x20users\x20SET\x20'+rayMaru['join'](',\x20')+hoRAS(0xfd),RayMaru);const [HorAs]=await db['query'](hoRAS(0xcf),[hORas]);HoRas[hoRAS(0xbb)]({'user':HorAs[0x0]});}catch(rAyMaru){console[hoRAS(0xfe)](hoRAS(0xe0),rAyMaru),HoRas['status'](0x1f4)[hoRAS(0xbb)]({'message':hoRAS(0xe1)});}},exports[HOrAS(0xbc)]=(RAyMaru,HOrAs)=>{const HoRAS=HOrAS;try{HOrAs[HoRAS(0xb1)](HoRAS(0xee),COOKIE_OPTIONS),HOrAs[HoRAS(0xbb)]({'message':HoRAS(0xc9)}),RAyMaru[HoRAS(0xc5)]&&addLog({'user_id':RAyMaru[HoRAS(0xc5)]['id'],'role':RAyMaru[HoRAS(0xc5)][HoRAS(0xe8)],'action':HoRAS(0xa7),'table_name':HoRAS(0xaf),'record_id':RAyMaru['user']['id'],'description':HoRAS(0xc1)+RAyMaru[HoRAS(0xc5)]['id']});}catch(hoRAs){console[HoRAS(0xfe)](HoRAS(0xea),hoRAs),HOrAs['status'](0x1f4)[HoRAS(0xbb)]({'message':HoRAS(0xb5)});}};function generateToken(raYMaru){const RaYMAru=HOrAS;return jwt['sign']({'id':raYMaru['id'],'role':raYMaru[RaYMAru(0xe8)]},process[RaYMAru(0xf5)][RaYMAru(0xf9)],{'expiresIn':process[RaYMAru(0xf5)]['JWT_EXPIRES']||'1d'});}exports[HOrAS(0xda)]=async(RaYMaru,HoRAs)=>{const rAYMAru=HOrAS;try{let {name:hORAs,npm:rAYMaru,email:RAYMaru,phone:HORAs,password:raymAru}=RaYMaru[rAYMAru(0xd6)];RAYMaru=RAYMaru?.[rAYMAru(0xef)]()[rAYMAru(0xc8)]();if(!hORAs||!rAYMaru||!RAYMaru||!HORAs||!raymAru){const rAymAru={};if(!hORAs)rAymAru[rAYMAru(0xd1)]=rAYMAru(0xdd);if(!rAYMaru)rAymAru[rAYMAru(0xa4)]=rAYMAru(0xa3);if(!RAYMaru)rAymAru[rAYMAru(0xe5)]=rAYMAru(0xb6);if(!HORAs)rAymAru[rAYMAru(0xf2)]=rAYMAru(0xdc);if(!raymAru)rAymAru[rAYMAru(0xe7)]=rAYMAru(0xaa);return HoRAs[rAYMAru(0xd0)](0x190)['json']({'message':rAYMAru(0xcd),'errors':rAymAru});}const [horaS]=await db[rAYMAru(0xbf)](rAYMAru(0xde),[RAYMaru,rAYMaru]);console[rAYMAru(0xc2)](rAYMAru(0xe2),{'email':RAYMaru,'npm':rAYMaru,'origin':RaYMaru['headers'][rAYMAru(0xe6)]||RaYMaru['ip']});if(horaS[rAYMAru(0xb4)]>0x0)return HoRAs[rAYMAru(0xd0)](0x190)[rAYMAru(0xbb)]({'message':'Email\x20atau\x20NPM\x20sudah\x20terdaftar.'});const RaymAru=await bcrypt['hash'](raymAru,0xa);let HoraS;try{[HoraS]=await db[rAYMAru(0xbf)](rAYMAru(0xeb),[hORAs,rAYMaru,RAYMaru,HORAs,RaymAru]);}catch(HOraS){if(HOraS&&HOraS[rAYMAru(0xed)]==='ER_DUP_ENTRY')return HoRAs[rAYMAru(0xd0)](0x199)[rAYMAru(0xbb)]({'message':rAYMAru(0xce)});return console[rAYMAru(0xfe)](rAYMAru(0xbe),HOraS),HoRAs['status'](0x1f4)[rAYMAru(0xbb)]({'message':rAYMAru(0xfb)});}const hOraS=HoraS[rAYMAru(0xba)];console['log'](rAYMAru(0xa9),{'id':hOraS,'email':RAYMaru,'npm':rAYMaru,'origin':RaYMaru['headers'][rAYMAru(0xe6)]||RaYMaru['ip']}),await addLog({'user_id':hOraS,'role':rAYMAru(0xa8),'action':'REGISTER','record_id':hOraS,'description':rAYMAru(0xcc)+RAYMaru}),HoRAs[rAYMAru(0xd0)](0xc9)[rAYMAru(0xbb)]({'message':rAYMAru(0xf0),'user':{'id':hOraS,'name':hORAs,'npm':rAYMaru,'email':RAYMaru,'phone':HORAs,'role':rAYMAru(0xa8),'is_active':0x0}});}catch(RAymAru){console[rAYMAru(0xfe)](rAYMAru(0xac),RAymAru),HoRAs[rAYMAru(0xd0)](0x1f4)[rAYMAru(0xbb)]({'message':rAYMAru(0xae)});}},exports[HOrAS(0xb9)]=async(raYmAru,hoRaS)=>{const hORAS=HOrAS;try{let {email:HoRaS,password:RaYmAru}=raYmAru['body'];HoRaS=HoRaS?.[hORAS(0xef)]()[hORAS(0xc8)]();if(!HoRaS||!RaYmAru)return hoRaS[hORAS(0xd0)](0x190)[hORAS(0xbb)]({'message':hORAS(0xc6)});const [rAYmAru]=await db[hORAS(0xbf)]('SELECT\x20*\x20FROM\x20users\x20WHERE\x20email\x20=\x20?\x20LIMIT\x201',[HoRaS]);if(rAYmAru[hORAS(0xb4)]===0x0)return hoRaS['status'](0x190)[hORAS(0xbb)]({'message':hORAS(0xc4)});const hORaS=rAYmAru[0x0];if(!hORaS[hORAS(0xb2)])return hoRaS['status'](0x193)[hORAS(0xbb)]({'message':hORAS(0xe4)});const HORaS=await bcrypt[hORAS(0xd7)](RaYmAru,hORaS[hORAS(0xe7)]);if(!HORaS)return hoRaS[hORAS(0xd0)](0x190)[hORAS(0xbb)]({'message':hORAS(0xc4)});console[hORAS(0xc2)](hORAS(0xfc),{'email':HoRaS,'origin':raYmAru[hORAS(0xc7)][hORAS(0xe6)]||raYmAru['ip']});const RAYmAru=generateToken(hORaS);hoRaS[hORAS(0xa6)](hORAS(0xee),RAYmAru,COOKIE_OPTIONS),await addLog({'user_id':hORaS['id'],'role':hORaS[hORAS(0xe8)],'action':hORAS(0xd3),'table_name':hORAS(0xaf),'record_id':hORaS['id'],'description':hORAS(0xca)+HoRaS+hORAS(0xec)+hORaS['role']}),hoRaS['json']({'message':hORAS(0xad),'user':{'id':hORaS['id'],'name':hORaS[hORAS(0xd1)],'npm':hORaS['npm'],'email':hORaS['email'],'phone':hORaS[hORAS(0xf2)],'role':hORaS['role']}});}catch(horAS){console[hORAS(0xfe)](hORAS(0xd9),horAS),hoRaS[hORAS(0xd0)](0x1f4)['json']({'message':'Terjadi\x20kesalahan\x20pada\x20server.'}),console[hORAS(0xc2)](hORAS(0xbd),{'email':email,'id':user['id']});}};
+const HOrAS = raymaru;
+(function (horAS, RayMAru) {
+    const RAyMAru = raymaru;
+    const HorAS = horAS();
+    while (!![]) {
+        try {
+            const rAyMAru = parseInt(RAyMAru(0x16f)) / 0x1 + -parseInt(RAyMAru(0x171)) / 0x2 * (-parseInt(RAyMAru(0x148)) / 0x3) + -parseInt(RAyMAru(0x17d)) / 0x4 + -parseInt(RAyMAru(0x15f)) / 0x5 + parseInt(RAyMAru(0x184)) / 0x6 * (parseInt(RAyMAru(0x145)) / 0x7) + -parseInt(RAyMAru(0x173)) / 0x8 * (-parseInt(RAyMAru(0x185)) / 0x9) + -parseInt(RAyMAru(0x143)) / 0xa * (parseInt(RAyMAru(0x16d)) / 0xb);
+            if (rAyMAru === RayMAru) {
+                break;
+            } else {
+                HorAS['push'](HorAS['shift']());
+            }
+        } catch (hOrAS) {
+            HorAS['push'](HorAS['shift']());
+        }
+    }
+}(horas, 0xa871c));
+const db = require(HOrAS(0x168));
+const bcrypt = require(HOrAS(0x14d));
+const jwt = require('jsonwebtoken');
+const {addLog} = require(HOrAS(0x180));
+const COOKIE_OPTIONS = {
+    'httpOnly': !![],
+    'secure': process[HOrAS(0x186)][HOrAS(0x13a)] === 'production',
+    'sameSite': HOrAS(0x139),
+    'maxAge': 0x18 * 0x3c * 0x3c * 0x3e8
+};
+exports['me'] = async (Horas, Raymaru) => {
+    const hoRAS = HOrAS;
+    try {
+        const rAymaru = Horas['cookies']?.[hoRAS(0x182)];
+        if (!rAymaru)
+            return Raymaru['status'](0x191)[hoRAS(0x18f)]({ 'message': hoRAS(0x175) });
+        const hOras = jwt[hoRAS(0x14e)](rAymaru, process[hoRAS(0x186)][hoRAS(0x18d)]);
+        const [RAymaru] = await db[hoRAS(0x165)](hoRAS(0x17c), [hOras['id']]);
+        if (RAymaru[hoRAS(0x15b)] === 0x0)
+            return Raymaru['status'](0x194)[hoRAS(0x18f)]({ 'message': 'User\x20not\x20found' });
+        const HOras = RAymaru[0x0];
+        Raymaru[hoRAS(0x18f)]({ 'user': HOras });
+    } catch (hoRas) {
+        console[hoRAS(0x160)](hoRAS(0x142), hoRas);
+        Raymaru[hoRAS(0x146)](0x191)['json']({ 'message': hoRAS(0x14f) });
+    }
+};
+function horas() {
+    const RAYMAru = [
+        '304068jBfTgN',
+        '90ATQuPJ',
+        'env',
+        'clearCookie',
+        'Logout\x20error',
+        'JWT_EXPIRES',
+        'cookies',
+        'cookie',
+        'LOGOUT',
+        'JWT_SECRET',
+        'email',
+        'json',
+        'Email\x20atau\x20NPM\x20sudah\x20terdaftar.',
+        'Field\x20tidak\x20lengkap.',
+        'New\x20user\x20registered:',
+        'lax',
+        'NODE_ENV',
+        'Error\x20during\x20logout',
+        'Email\x20atau\x20password\x20salah.',
+        'Registrasi\x20berhasil.\x20Akun\x20menunggu\x20persetujuan\x20admin.',
+        'Mahasiswa\x20baru\x20-\x20Email:\x20',
+        'role',
+        'Error\x20pada\x20login:',
+        'SELECT\x20*\x20FROM\x20users\x20WHERE\x20email\x20=\x20?\x20LIMIT\x201',
+        'Error\x20in\x20me:',
+        '8770TbYODg',
+        'UPDATE\x20users\x20SET\x20',
+        '70FNwwij',
+        'status',
+        'name\x20=\x20?',
+        '3hKLfDd',
+        'logout',
+        'Login\x20success:',
+        'name',
+        'Failed\x20to\x20update\x20profile',
+        'bcryptjs',
+        'verify',
+        'Invalid\x20token',
+        'npm',
+        'headers',
+        'Register\x20attempt:',
+        'hash',
+        'origin',
+        'LOGIN',
+        'code',
+        'updateMe',
+        'sign',
+        'REGISTER',
+        'Database\x20error\x20creating\x20user:',
+        'length',
+        'push',
+        'login',
+        'Error\x20pada\x20registrasi:',
+        '4848215WiUJiT',
+        'error',
+        'register',
+        'insertId',
+        'body',
+        'Logged\x20out',
+        'query',
+        'trim',
+        'Nomor\x20telepon\x20harus\x20diisi.',
+        '../config/db',
+        'phone\x20=\x20?',
+        'Login\x20berhasil.',
+        'Nama\x20harus\x20diisi.',
+        'is_active',
+        '4202MGqQCr',
+        'Terjadi\x20kesalahan\x20pada\x20server.',
+        '1036652HQHhBF',
+        'password',
+        '1525834RZcPPW',
+        'Akun\x20Anda\x20tidak\x20aktif.\x20Silakan\x20hubungi\x20admin.',
+        '605624izgnuz',
+        'users',
+        'Not\x20authenticated',
+        'INSERT\x20INTO\x20users\x20(name,\x20npm,\x20email,\x20phone,\x20password,\x20role,\x20is_active)\x20VALUES\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20(?,\x20?,\x20?,\x20?,\x20?,\x20\x27mahasiswa\x27,\x200)',
+        'Error\x20updating\x20me:',
+        'user',
+        'User\x20logged\x20in\x20-\x20Email:\x20',
+        'log',
+        '\x20WHERE\x20id\x20=\x20?',
+        'SELECT\x20id,\x20name,\x20npm,\x20email,\x20phone,\x20role,\x20is_active\x20FROM\x20users\x20WHERE\x20id\x20=\x20?\x20LIMIT\x201',
+        '4275096WiRksV',
+        '\x20-\x20Role:\x20',
+        'SELECT\x20id\x20FROM\x20users\x20WHERE\x20email\x20=\x20?\x20OR\x20npm\x20=\x20?\x20LIMIT\x201',
+        '../helper/logHelper',
+        'password\x20=\x20?',
+        'token',
+        'toLowerCase'
+    ];
+    horas = function () {
+        return RAYMAru;
+    };
+    return horas();
+}
+function raymaru(Raymaru, Horas) {
+    const hOras = horas();
+    raymaru = function (rAymaru, HOras) {
+        rAymaru = rAymaru - 0x139;
+        let RAymaru = hOras[rAymaru];
+        return RAymaru;
+    };
+    return raymaru(Raymaru, Horas);
+}
+exports[HOrAS(0x157)] = async (raYmaru, HoRas) => {
+    const raYMAru = HOrAS;
+    try {
+        const RaYmaru = raYmaru[raYMAru(0x18a)]?.['token'];
+        if (!RaYmaru)
+            return HoRas[raYMAru(0x146)](0x191)[raYMAru(0x18f)]({ 'message': 'Not\x20authenticated' });
+        const hORas = jwt['verify'](RaYmaru, process[raYMAru(0x186)][raYMAru(0x18d)]);
+        const rAYmaru = hORas['id'];
+        const {
+            name: HORas,
+            phone: RAYmaru,
+            password: rayMaru
+        } = raYmaru[raYMAru(0x163)];
+        const horAs = [];
+        const HorAs = [];
+        if (HORas) {
+            horAs['push'](raYMAru(0x147));
+            HorAs[raYMAru(0x15c)](HORas);
+        }
+        if (RAYmaru) {
+            horAs[raYMAru(0x15c)](raYMAru(0x169));
+            HorAs['push'](RAYmaru);
+        }
+        if (rayMaru) {
+            const hOrAs = await bcrypt[raYMAru(0x153)](rayMaru, 0xa);
+            horAs[raYMAru(0x15c)](raYMAru(0x181));
+            HorAs[raYMAru(0x15c)](hOrAs);
+        }
+        if (horAs[raYMAru(0x15b)] === 0x0)
+            return HoRas[raYMAru(0x18f)]({ 'message': 'No\x20changes' });
+        HorAs[raYMAru(0x15c)](rAYmaru);
+        await db[raYMAru(0x165)](raYMAru(0x144) + horAs['join'](',\x20') + raYMAru(0x17b), HorAs);
+        const [RayMaru] = await db['query'](raYMAru(0x17c), [rAYmaru]);
+        HoRas[raYMAru(0x18f)]({ 'user': RayMaru[0x0] });
+    } catch (rAyMaru) {
+        console['error'](raYMAru(0x177), rAyMaru);
+        HoRas[raYMAru(0x146)](0x1f4)[raYMAru(0x18f)]({ 'message': raYMAru(0x14c) });
+    }
+};
+exports[HOrAS(0x149)] = (RAyMaru, HOrAs) => {
+    const HoRAS = HOrAS;
+    try {
+        HOrAs[HoRAS(0x187)](HoRAS(0x182), COOKIE_OPTIONS);
+        HOrAs[HoRAS(0x18f)]({ 'message': HoRAS(0x164) });
+        if (RAyMaru['user']) {
+            addLog({
+                'user_id': RAyMaru[HoRAS(0x178)]['id'],
+                'role': RAyMaru[HoRAS(0x178)][HoRAS(0x13f)],
+                'action': HoRAS(0x18c),
+                'table_name': 'users',
+                'record_id': RAyMaru[HoRAS(0x178)]['id'],
+                'description': 'User\x20logged\x20out\x20-\x20ID:\x20' + RAyMaru['user']['id']
+            });
+        }
+    } catch (hoRAs) {
+        console[HoRAS(0x160)](HoRAS(0x188), hoRAs);
+        HOrAs['status'](0x1f4)[HoRAS(0x18f)]({ 'message': HoRAS(0x13b) });
+    }
+};
+function generateToken(raYMaru) {
+    const RaYMAru = HOrAS;
+    return jwt[RaYMAru(0x158)]({
+        'id': raYMaru['id'],
+        'role': raYMaru['role']
+    }, process['env'][RaYMAru(0x18d)], { 'expiresIn': process[RaYMAru(0x186)][RaYMAru(0x189)] || '1d' });
+}
+exports[HOrAS(0x161)] = async (RaYMaru, HoRAs) => {
+    const rAYMAru = HOrAS;
+    try {
+        let {
+            name: hORAs,
+            npm: rAYMaru,
+            email: RAYMaru,
+            phone: HORAs,
+            password: raymAru
+        } = RaYMaru[rAYMAru(0x163)];
+        RAYMaru = RAYMaru?.[rAYMAru(0x166)]()[rAYMAru(0x183)]();
+        if (!hORAs || !rAYMaru || !RAYMaru || !HORAs || !raymAru) {
+            const hOraS = {};
+            if (!hORAs)
+                hOraS[rAYMAru(0x14b)] = rAYMAru(0x16b);
+            if (!rAYMaru)
+                hOraS[rAYMAru(0x150)] = 'NPM\x20harus\x20diisi.';
+            if (!RAYMaru)
+                hOraS[rAYMAru(0x18e)] = 'Email\x20harus\x20diisi.';
+            if (!HORAs)
+                hOraS['phone'] = rAYMAru(0x167);
+            if (!raymAru)
+                hOraS[rAYMAru(0x170)] = 'Password\x20harus\x20diisi.';
+            return HoRAs[rAYMAru(0x146)](0x190)['json']({
+                'message': rAYMAru(0x191),
+                'errors': hOraS
+            });
+        }
+        const [horaS] = await db[rAYMAru(0x165)](rAYMAru(0x17f), [
+            RAYMaru,
+            rAYMaru
+        ]);
+        console[rAYMAru(0x17a)](rAYMAru(0x152), {
+            'email': RAYMaru,
+            'npm': rAYMaru,
+            'origin': RaYMaru[rAYMAru(0x151)]['origin'] || RaYMaru['ip']
+        });
+        if (horaS[rAYMAru(0x15b)] > 0x0) {
+            return HoRAs['status'](0x190)['json']({ 'message': rAYMAru(0x190) });
+        }
+        const HoraS = await bcrypt[rAYMAru(0x153)](raymAru, 0xa);
+        let RaymAru;
+        try {
+            [RaymAru] = await db[rAYMAru(0x165)](rAYMAru(0x176), [
+                hORAs,
+                rAYMaru,
+                RAYMaru,
+                HORAs,
+                HoraS
+            ]);
+        } catch (HOraS) {
+            if (HOraS && HOraS[rAYMAru(0x156)] === 'ER_DUP_ENTRY') {
+                return HoRAs[rAYMAru(0x146)](0x199)[rAYMAru(0x18f)]({ 'message': rAYMAru(0x190) });
+            }
+            console[rAYMAru(0x160)](rAYMAru(0x15a), HOraS);
+            return HoRAs[rAYMAru(0x146)](0x1f4)['json']({ 'message': 'Gagal\x20mendaftarkan\x20akun.\x20Silakan\x20coba\x20lagi.' });
+        }
+        const rAymAru = RaymAru[rAYMAru(0x162)];
+        console[rAYMAru(0x17a)](rAYMAru(0x192), {
+            'id': rAymAru,
+            'email': RAYMaru,
+            'npm': rAYMaru,
+            'origin': RaYMaru[rAYMAru(0x151)][rAYMAru(0x154)] || RaYMaru['ip']
+        });
+        await addLog({
+            'user_id': rAymAru,
+            'role': 'mahasiswa',
+            'action': rAYMAru(0x159),
+            'record_id': rAymAru,
+            'description': rAYMAru(0x13e) + RAYMaru
+        });
+        HoRAs[rAYMAru(0x146)](0xc9)[rAYMAru(0x18f)]({
+            'message': rAYMAru(0x13d),
+            'user': {
+                'id': rAymAru,
+                'name': hORAs,
+                'npm': rAYMaru,
+                'email': RAYMaru,
+                'phone': HORAs,
+                'role': 'mahasiswa',
+                'is_active': 0x0
+            }
+        });
+    } catch (RAymAru) {
+        console['error'](rAYMAru(0x15e), RAymAru);
+        HoRAs[rAYMAru(0x146)](0x1f4)['json']({ 'message': 'Terjadi\x20kesalahan\x20pada\x20server.' });
+    }
+};
+exports[HOrAS(0x15d)] = async (raYmAru, hoRaS) => {
+    const hORAS = HOrAS;
+    try {
+        let {
+            email: RaYmAru,
+            password: HoRaS
+        } = raYmAru['body'];
+        RaYmAru = RaYmAru?.[hORAS(0x166)]()[hORAS(0x183)]();
+        if (!RaYmAru || !HoRaS) {
+            return hoRaS[hORAS(0x146)](0x190)[hORAS(0x18f)]({ 'message': 'Wajib\x20isi\x20semua\x20field.' });
+        }
+        const [hORaS] = await db['query'](hORAS(0x141), [RaYmAru]);
+        if (hORaS[hORAS(0x15b)] === 0x0) {
+            return hoRaS['status'](0x190)[hORAS(0x18f)]({ 'message': hORAS(0x13c) });
+        }
+        const rAYmAru = hORaS[0x0];
+        if (!rAYmAru[hORAS(0x16c)]) {
+            return hoRaS[hORAS(0x146)](0x193)[hORAS(0x18f)]({ 'message': hORAS(0x172) });
+        }
+        const HORaS = await bcrypt['compare'](HoRaS, rAYmAru[hORAS(0x170)]);
+        if (!HORaS) {
+            return hoRaS[hORAS(0x146)](0x190)[hORAS(0x18f)]({ 'message': hORAS(0x13c) });
+        }
+        console[hORAS(0x17a)]('Login\x20attempt:', {
+            'email': RaYmAru,
+            'origin': raYmAru['headers'][hORAS(0x154)] || raYmAru['ip']
+        });
+        const RAYmAru = generateToken(rAYmAru);
+        hoRaS[hORAS(0x18b)](hORAS(0x182), RAYmAru, COOKIE_OPTIONS);
+        await addLog({
+            'user_id': rAYmAru['id'],
+            'role': rAYmAru[hORAS(0x13f)],
+            'action': hORAS(0x155),
+            'table_name': hORAS(0x174),
+            'record_id': rAYmAru['id'],
+            'description': hORAS(0x179) + RaYmAru + hORAS(0x17e) + rAYmAru[hORAS(0x13f)]
+        });
+        hoRaS['json']({
+            'message': hORAS(0x16a),
+            'user': {
+                'id': rAYmAru['id'],
+                'name': rAYmAru['name'],
+                'npm': rAYmAru[hORAS(0x150)],
+                'email': rAYmAru[hORAS(0x18e)],
+                'phone': rAYmAru['phone'],
+                'role': rAYmAru[hORAS(0x13f)]
+            }
+        });
+    } catch (rayMAru) {
+        console[hORAS(0x160)](hORAS(0x140), rayMAru);
+        hoRaS[hORAS(0x146)](0x1f4)[hORAS(0x18f)]({ 'message': hORAS(0x16e) });
+        console[hORAS(0x17a)](hORAS(0x14a), {
+            'email': email,
+            'id': user['id']
+        });
+    }
+};
