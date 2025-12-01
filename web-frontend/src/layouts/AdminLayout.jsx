@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import CourtModalForm from "../components/CourtModalForm";
 import api from "../utils/api";
 import { Link, useLocation } from "react-router-dom";
+// import { useAuth } from "../contexts/AuthContext";
 
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -10,6 +11,8 @@ const AdminLayout = ({ children }) => {
   const [courtModalMode, setCourtModalMode] = useState("add"); // 'add' or 'edit'
   const [courtModalData, setCourtModalData] = useState(null);
   const location = useLocation();
+  // const { user, logout } = useAuth();
+  // const navigate = useNavigate();
 
   const navigation = [
     {
@@ -330,9 +333,14 @@ const AdminLayout = ({ children }) => {
                       Lihat Website
                     </Link>
                     <hr className="border-gray-200 my-1" />
-                    <button className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                      Logout
-                    </button>
+                    <Link
+                      to="/login"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <button className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                        Logout
+                      </button>
+                    </Link>
                   </div>
                 </div>
               </div>
