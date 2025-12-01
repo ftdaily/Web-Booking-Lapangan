@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import CourtModalForm from '../components/CourtModalForm';
-import api from '../utils/api';
+import CourtModalForm from "../components/CourtModalForm";
+import api from "../utils/api";
 import { Link, useLocation } from "react-router-dom";
 
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   // Court modal state to be used globally within admin layout
   const [courtModalOpen, setCourtModalOpen] = useState(false);
-  const [courtModalMode, setCourtModalMode] = useState('add'); // 'add' or 'edit'
+  const [courtModalMode, setCourtModalMode] = useState("add"); // 'add' or 'edit'
   const [courtModalData, setCourtModalData] = useState(null);
   const location = useLocation();
 
@@ -88,50 +88,6 @@ const AdminLayout = ({ children }) => {
         </svg>
       ),
     },
-    {
-      name: "Laporan",
-      href: "/admin/reports",
-      icon: (
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-          />
-        </svg>
-      ),
-    },
-    {
-      name: "Pengaturan",
-      href: "/admin/settings",
-      icon: (
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-          />
-        </svg>
-      ),
-    },
   ];
 
   const isActive = (path) => {
@@ -142,7 +98,7 @@ const AdminLayout = ({ children }) => {
 
   useEffect(() => {
     const onOpenAdd = () => {
-      setCourtModalMode('add');
+      setCourtModalMode("add");
       setCourtModalData(null);
       setCourtModalOpen(true);
     };
@@ -153,22 +109,22 @@ const AdminLayout = ({ children }) => {
       try {
         const { data } = await api.get(`/rooms/${id}`);
         const room = data?.data || data || data?.room || data;
-        setCourtModalMode('edit');
+        setCourtModalMode("edit");
         setCourtModalData(room);
         setCourtModalOpen(true);
       } catch (err) {
-        console.warn('Failed to fetch room for edit', err);
+        console.warn("Failed to fetch room for edit", err);
         // open empty edit form as fallback
-        setCourtModalMode('edit');
+        setCourtModalMode("edit");
         setCourtModalData({ id });
         setCourtModalOpen(true);
       }
     };
-    window.addEventListener('openAddCourt', onOpenAdd);
-    window.addEventListener('openEditCourt', onOpenEdit);
+    window.addEventListener("openAddCourt", onOpenAdd);
+    window.addEventListener("openEditCourt", onOpenEdit);
     return () => {
-      window.removeEventListener('openAddCourt', onOpenAdd);
-      window.removeEventListener('openEditCourt', onOpenEdit);
+      window.removeEventListener("openAddCourt", onOpenAdd);
+      window.removeEventListener("openEditCourt", onOpenEdit);
     };
   }, []);
 
@@ -276,7 +232,7 @@ const AdminLayout = ({ children }) => {
 
             <div className="flex items-center space-x-4">
               {/* Notifications */}
-              <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
+              {/* <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
                 <svg
                   className="w-6 h-6"
                   fill="none"
@@ -291,7 +247,7 @@ const AdminLayout = ({ children }) => {
                   />
                 </svg>
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
+              </button> */}
 
               {/* Quick Actions */}
               <div className="relative group">
@@ -319,7 +275,9 @@ const AdminLayout = ({ children }) => {
                       Tambah Booking
                     </Link>
                     <button
-                      onClick={() => window.dispatchEvent(new CustomEvent('openAddCourt'))}
+                      onClick={() =>
+                        window.dispatchEvent(new CustomEvent("openAddCourt"))
+                      }
                       className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       Tambah Lapangan
@@ -386,14 +344,16 @@ const AdminLayout = ({ children }) => {
         {courtModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white rounded-lg max-w-3xl w-full p-6">
-              <h3 className="text-lg font-semibold mb-4">{courtModalMode === 'add' ? 'Tambah Lapangan' : 'Edit Lapangan'}</h3>
+              <h3 className="text-lg font-semibold mb-4">
+                {courtModalMode === "add" ? "Tambah Lapangan" : "Edit Lapangan"}
+              </h3>
               <CourtModalForm
                 initialData={courtModalData}
                 mode={courtModalMode}
                 onClose={() => setCourtModalOpen(false)}
                 onSaved={() => {
                   // notify other pages to reload rooms
-                  window.dispatchEvent(new CustomEvent('roomSaved'));
+                  window.dispatchEvent(new CustomEvent("roomSaved"));
                   setCourtModalOpen(false);
                 }}
               />
@@ -408,7 +368,7 @@ const AdminLayout = ({ children }) => {
         <footer className="bg-white border-t border-gray-200 px-6 py-4">
           <div className="flex justify-between items-center text-sm text-gray-600">
             <span>© 2024 SportHub Admin Panel. All rights reserved.</span>
-            <div className="flex space-x-4">
+            {/* <div className="flex space-x-4">
               <Link to="/admin/help" className="hover:text-gray-900">
                 Bantuan
               </Link>
@@ -416,7 +376,7 @@ const AdminLayout = ({ children }) => {
                 Dokumentasi
               </Link>
               <span>v1.0.0</span>
-            </div>
+            </div> */}
           </div>
         </footer>
       </div>
